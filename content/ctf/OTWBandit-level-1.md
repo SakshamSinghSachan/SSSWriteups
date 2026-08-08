@@ -18,7 +18,7 @@ tags:
   - CTF
 ---
 
-# OverTheWire Bandit — Level 2
+# OverTheWire Bandit — Level 1
 
 ## Introduction
 
