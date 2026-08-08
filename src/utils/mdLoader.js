@@ -210,10 +210,13 @@ export function loadAllWriteups() {
     });
   }
 
- 
-  return writeups.sort((a, b) => {
-    if (a.order !== b.order) {
-      return a.order - b.order;
+ return writeups.sort((a, b) => {
+  if (a.order !== b.order) {
+    return b.order - a.order;
+  }
+
+  return new Date(b.date) - new Date(a.date);
+});
     }
 
     return new Date(b.date) - new Date(a.date);
