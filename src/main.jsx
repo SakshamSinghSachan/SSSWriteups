@@ -497,7 +497,7 @@ function About() {
             <Linkedin size={18} /> LinkedIn
           </a>
           <a
-            href="https://x.com/"
+            href="https://x.com/DeceptaTech"
             target="_blank"
             rel="noopener noreferrer"
             className="social-btn"
