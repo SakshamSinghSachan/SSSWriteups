@@ -1,5 +1,5 @@
 ---
-title: "OverTheWire Bandit - Level 2"
+title: "OverTheWire Bandit - Level 1"
 description: "Beginner-friendly walkthrough of OverTheWire Bandit Level 1 to Level 2, including SSH, Linux files, filenames beginning with a dash, standard input, command options, cat, paths, and authentication."
 platform: "CTF"
 category: "OverTheWire - Bandit"
