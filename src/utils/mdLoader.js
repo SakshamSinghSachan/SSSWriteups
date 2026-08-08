@@ -4,10 +4,16 @@ export function parseFrontMatter(rawContent) {
   }
 
   const normalized = rawContent.replace(/\r\n/g, "\n");
-  const match = normalized.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
+
+  const match = normalized.match(
+    /^---\n([\s\S]*?)\n---\n?([\s\S]*)$/
+  );
 
   if (!match) {
-    return { metadata: {}, content: normalized };
+    return {
+      metadata: {},
+      content: normalized,
+    };
   }
 
   const yamlBlock = match[1];
@@ -19,9 +25,11 @@ export function parseFrontMatter(rawContent) {
   yamlBlock.split("\n").forEach((line) => {
     const trimmed = line.trim();
 
-    if (!trimmed || trimmed.startsWith("#")) return;
+    if (!trimmed || trimmed.startsWith("#")) {
+      return;
+    }
 
-    // Handle YAML arrays such as:
+    // Handle YAML arrays:
     // tags:
     //   - Linux
     //   - SSH
@@ -47,7 +55,7 @@ export function parseFrontMatter(rawContent) {
     if (colonIndex !== -1) {
       const key = trimmed.slice(0, colonIndex).trim();
 
-      let value = trimmed
+      const value = trimmed
         .slice(colonIndex + 1)
         .trim()
         .replace(/^['"]|['"]$/g, "");
@@ -94,27 +102,35 @@ export function loadAllWriteups() {
 
   for (const path in modules) {
     // Ignore non-markdown files
-    if (!path.endsWith(".md")) continue;
+    if (!path.endsWith(".md")) {
+      continue;
+    }
 
     const raw =
       typeof modules[path] === "string"
         ? modules[path]
         : modules[path]?.default || "";
 
-    if (!raw.trim()) continue;
+    if (!raw.trim()) {
+      continue;
+    }
 
     const { metadata, content } = parseFrontMatter(raw);
 
-   
+    // Remove /content/ from the path
     const relativePath = path.replace(/^\/content\//, "");
 
+    // Example:
+    // ctf/bandit-level-0.md
     const parts = relativePath.split("/");
 
-    const folder = parts.length > 1 ? parts[0] : "general";
+    const folder =
+      parts.length > 1 ? parts[0] : "general";
 
-    const filename = parts[parts.length - 1].replace(/\.md$/, "");
+    const filename =
+      parts[parts.length - 1].replace(/\.md$/, "");
 
-    // Unique ID
+    // Unique IDs
     const fullSlug = relativePath
       .replace(/\.md$/, "")
       .replace(/[\/\\]/g, "-");
@@ -124,22 +140,32 @@ export function loadAllWriteups() {
     // Platform
     const defaultPlatform = formatPlatformName(folder);
 
-    const platform = metadata.platform || defaultPlatform;
+    const platform =
+      metadata.platform || defaultPlatform;
 
-    // Basic metadata
+    // Title
     const title =
       metadata.title ||
       filename
         .replace(/[-_]/g, " ")
         .replace(/\b\w/g, (c) => c.toUpperCase());
 
-    const category = metadata.category || platform;
+    // Category
+    const category =
+      metadata.category || platform;
 
-    const difficulty = metadata.difficulty || "Medium";
+    // Difficulty
+    const difficulty =
+      metadata.difficulty || "Medium";
 
-    const date = metadata.date || "2026-08-05";
+    // Date
+    const date =
+      metadata.date || "2026-08-05";
 
-    const order = Number(metadata.order ?? 999);
+  
+    const order = Number(
+      metadata.order ?? 999
+    );
 
     // Tags
     let tags = [];
@@ -149,10 +175,11 @@ export function loadAllWriteups() {
     } else if (typeof metadata.tags === "string") {
       tags = metadata.tags
         .split(",")
-        .map((t) => t.trim())
+        .map((tag) => tag.trim())
         .filter(Boolean);
     }
 
+    // Default tags
     if (tags.length === 0) {
       tags = [platform, category].filter(Boolean);
     }
@@ -164,10 +191,14 @@ export function loadAllWriteups() {
       .filter(Boolean).length;
 
     const readTime =
-      Math.max(1, Math.ceil(wordCount / 200)) + " min";
+      Math.max(
+        1,
+        Math.ceil(wordCount / 200)
+      ) + " min";
 
     // Description
-    let description = metadata.description || "";
+    let description =
+      metadata.description || "";
 
     if (!description) {
       const cleanBody = content
@@ -186,7 +217,7 @@ export function loadAllWriteups() {
       }
     }
 
-    // Add writeup to array
+    // Add writeup
     writeups.push({
       id: fullSlug,
       simpleId: simpleSlug,
@@ -210,15 +241,15 @@ export function loadAllWriteups() {
     });
   }
 
- return writeups.sort((a, b) => {
-  if (a.order !== b.order) {
-    return b.order - a.order;
-  }
-
-  return new Date(b.date) - new Date(a.date);
-});
+  
+  return writeups.sort((a, b) => {
+    if (a.order !== b.order) {
+      return b.order - a.order;
     }
 
-    return new Date(b.date) - new Date(a.date);
+    return (
+      new Date(b.date) -
+      new Date(a.date)
+    );
   });
 }
