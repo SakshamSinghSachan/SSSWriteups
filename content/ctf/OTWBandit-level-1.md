@@ -1,21 +1,19 @@
-```markdown
 ---
 title: "OverTheWire Bandit - Level 1"
-description: "Beginner-friendly walkthrough of OverTheWire Bandit Level 0 to Level 1, including SSH login, Linux home directory, files, ls command, cat command, passwords, authentication, and moving to the next level."
+description: "Beginner-friendly walkthrough of OverTheWire Bandit Level 0 to Level 1. Learn how to use SSH, ls, pwd, cat, Linux files, directories, paths, passwords, and remote authentication."
 platform: "CTF"
 category: "OverTheWire - Bandit"
 difficulty: "Beginner"
-date: "19-062026"
+date: "19-06-2026"
 tags:
   - OverTheWire
   - Bandit
   - Linux
   - SSH
-  - Linux Commands
   - ls
   - cat
   - Files
-  - Home Directory
+  - Directories
   - Authentication
   - CTF
 ---
@@ -24,60 +22,45 @@ tags:
 
 ## Introduction
 
-Bandit Level 1 ko technically **Level 0 → Level 1** bhi kaha jata hai.
+Bandit Level 1 ko technically **Level 0 → Level 1** bhi kaha jata hai. Is level mein hum pehle `bandit0` user se SSH ke through login karenge. Login karne ke baad home directory mein maujood `readme` file ko read karna hai.
 
-Is level mein humein Bandit Level 0 ke server par login karke ek file ko read karna hai. Us file mein next level, yani `bandit1`, ka password stored hai.
+`readme` file ke andar next level, yani `bandit1`, ka password stored hai. Official challenge ke according, password home directory mein present `readme` file mein hota hai. [web:28]
 
-Official challenge ke according, next level ka password home directory mein present `readme` naam ki file ke andar stored hota hai. [28]
-
-Is level mein hum mainly ye Linux commands seekhenge:
-
-- `ls`
-- `cat`
-- `pwd`
-- `cd`
-- `exit`
-
----
+Is level ka main purpose Linux terminal mein files ko locate karna aur unka content read karna seekhna hai.
 
 ## Objective
 
-Level 0 se Level 1 move karne ke liye:
+Humein ye steps complete karne hain:
 
-1. `bandit0` user ke through SSH se login karein.
-2. Current directory mein available files dekhein.
-3. `readme` file ko read karein.
-4. File ke andar stored password copy karein.
-5. Us password se `bandit1` user ke through login karein.
+1. `bandit0` user se SSH ke through login karna.
+2. Current directory check karna.
+3. Available files ki list dekhna.
+4. `readme` file ka content read karna.
+5. File se mila password copy karna.
+6. Us password se `bandit1` user ke through login karna.
 
----
-
-## Provided Credentials
+## Given Credentials
 
 Level 0 par login karne ke liye:
 
 ```text
-Username: bandit0
-Password: bandit0
 Host:     bandit.labs.overthewire.org
 Port:     2220
+Username: bandit0
+Password: bandit0
 ```
 
-Next level ke liye humein `readme` file se password find karna hoga.
-
-Challenge ka structure:
+Next level par login karne ke liye username hoga:
 
 ```text
-Current Level:  bandit0
-Required File:  readme
-Next User:      bandit1
+bandit1
 ```
 
----
+Password `readme` file se milega.
 
-## Level 1 Mein Use Hone Wale Concepts
+## Important Concepts
 
-Is level mein hum in concepts ko samjhenge:
+Is level mein hum ye concepts seekhenge:
 
 - SSH login
 - Remote server
@@ -87,98 +70,101 @@ Is level mein hum in concepts ko samjhenge:
 - `pwd` command
 - `ls` command
 - `cat` command
-- Relative file path
-- File contents
+- Absolute path
+- Relative path
+- File permissions ka basic idea
 - Password extraction
-- Next level login
-- `exit` command
+- Next level SSH login
 
----
+## Remote Server Kya Hota Hai?
 
-# Linux File System Basics
+Remote server ek aisa computer hota hai jise hum network ya internet ke through access kar sakte hain. Bandit ka server hamare local computer par nahi hota; hum SSH ke through us par login karte hain.
 
-## File Kya Hota Hai?
+SSH ke baad terminal mein run ki gayi commands remote Bandit machine par execute hoti hain, local computer par nahi.
 
-File ek container hoti hai jisme information store hoti hai.
+## SSH Kya Hota Hai?
 
-Examples:
+SSH ka full form **Secure Shell** hai. SSH ka use kisi remote computer par securely login karne aur commands execute karne ke liye hota hai.
+
+SSH command ka general format:
+
+```bash
+ssh username@hostname -p port
+```
+
+Bandit ke liye command:
+
+```bash
+ssh bandit0@bandit.labs.overthewire.org -p 2220
+```
+
+Command ke parts:
+
+| Part | Meaning |
+|---|---|
+| `ssh` | SSH client start karta hai |
+| `bandit0` | Remote server ka username |
+| `@` | Username aur hostname ko separate karta hai |
+| `bandit.labs.overthewire.org` | Bandit server ka hostname |
+| `-p` | Custom port specify karta hai |
+| `2220` | Bandit SSH service ka port |
+
+Bandit ka port `2220` hai, isliye command mein `-p 2220` likhna zaroori hai.
+
+## Linux File System Basics
+
+### File Kya Hoti Hai?
+
+File ek container hoti hai jisme information store hoti hai. Example:
 
 ```text
 readme
 password.txt
 notes.md
 config.conf
-image.png
 ```
 
-File ke andar text, password, code, configuration ya koi other data ho sakta hai.
-
-Bandit Level 1 mein password ek file ke andar store hai:
+Is level mein password ek file ke andar store hai:
 
 ```text
 readme
 ```
 
----
+### Directory Kya Hoti Hai?
 
-## Directory Kya Hoti Hai?
-
-Directory ko commonly folder bhi kaha jata hai.
-
-Directory ka use files aur doosri directories ko organize karne ke liye hota hai.
+Directory ko commonly folder bhi kaha jata hai. Iska use files aur doosri directories ko organize karne ke liye hota hai.
 
 Example:
 
 ```text
-home/
-├── bandit0/
-│   └── readme
-└── bandit1/
+/home
+└── bandit0
+    └── readme
 ```
 
-Yahan:
+Yahan `home` aur `bandit0` directories hain, jabki `readme` ek file hai.
 
-- `home` ek directory hai.
-- `bandit0` ek user directory hai.
-- `readme` ek file hai.
+### Home Directory Kya Hoti Hai?
 
-Linux mein folders ko generally directories kaha jata hai.
-
----
-
-## Home Directory Kya Hoti Hai?
-
-Har Linux user ka ek personal home directory hota hai.
-
-`bandit0` user ke liye home directory generally is location par hoti hai:
+Har Linux user ki ek personal home directory hoti hai. `bandit0` user ki home directory generally ye hoti hai:
 
 ```text
 /home/bandit0
 ```
 
-Jab aap `bandit0` user se SSH ke through login karte ho, to aap usually us user ki home directory se start karte ho.
+SSH login ke baad hum usually isi directory se start karte hain. Home directory ko short form mein `~` se represent kiya jata hai.
 
-Home directory ko short form mein tilde symbol se represent kiya jata hai:
-
-```bash
-~
-```
-
-Agar prompt kuch is tarah dikhe:
+Example prompt:
 
 ```text
 bandit0@bandit:~$
 ```
 
-To iska matlab hai ki aap `bandit0` user ki home directory mein ho.
+Yahan `~` ka matlab current user ki home directory hai.
 
----
+## `pwd` Command
 
-## Current Working Directory Kya Hoti Hai?
-
-Current working directory woh directory hoti hai jahan aap is waqt kaam kar rahe ho.
-
-Current directory check karne ke liye `pwd` command use hoti hai.
+`pwd` ka full form **Print Working Directory** hai. Ye current directory ka complete path display karta hai.
 
 ```bash
 pwd
@@ -190,67 +176,11 @@ Expected output:
 /home/bandit0
 ```
 
-`pwd` ka full form hai:
+Current directory pata hona important hai, kyunki `cat readme` jaise commands current directory mein file search karte hain.
 
-```text
-Print Working Directory
-```
+## `ls` Command
 
-Agar aap kisi file ko directly access karna chahte ho, to aapko ye pata hona chahiye ki aap kis directory mein ho.
-
----
-
-# Linux Commands
-
-## 1. `pwd` Command
-
-`pwd` command current working directory ka complete path display karti hai.
-
-Command:
-
-```bash
-pwd
-```
-
-Expected output:
-
-```text
-/home/bandit0
-```
-
-Is output ka meaning:
-
-```text
-/
-```
-
-Root directory ko represent karta hai.
-
-```text
-home
-```
-
-Users ki home directories ka parent folder hai.
-
-```text
-bandit0
-```
-
-Current user ki home directory hai.
-
-Complete path:
-
-```text
-/home/bandit0
-```
-
----
-
-## 2. `ls` Command
-
-`ls` command current directory ke andar available files aur directories ki list display karti hai.
-
-Command:
+`ls` command current directory ke andar available files aur directories ki list show karti hai.
 
 ```bash
 ls
@@ -262,66 +192,33 @@ Expected output:
 readme
 ```
 
-Iska matlab hai ki current directory mein ek file available hai jiska naam `readme` hai.
+Is output ka matlab hai ki current directory mein `readme` naam ki file available hai.
 
-`ls` ka full meaning commonly **list** samjha jata hai.
+### Useful `ls` Options
 
-### Basic Usage
-
-```bash
-ls
-```
-
-Current directory ki files show karega.
-
-### Detailed List
+Detailed information dekhne ke liye:
 
 ```bash
 ls -l
 ```
 
-Ye files ki detailed information show karega, jaise:
-
-- File permissions
-- File owner
-- File group
-- File size
-- File modification time
-- File name
-
-Example:
-
-```text
--r-------- 1 bandit1 bandit1 33 Aug 8 20:00 readme
-```
-
-### Hidden Files Dekhna
-
-Linux mein dot `.` se start hone wali files hidden hoti hain.
-
-Hidden files dekhne ke liye:
+Hidden files ke saath list dekhne ke liye:
 
 ```bash
 ls -a
 ```
 
-Detailed hidden files ke liye:
+Detailed hidden-file list ke liye:
 
 ```bash
 ls -la
 ```
 
-Is level ke liye simple command sufficient hai:
+Level 1 ke liye simple `ls` command enough hai.
 
-```bash
-ls
-```
+## `cat` Command
 
----
-
-## 3. `cat` Command
-
-`cat` command ka use file ka content terminal par display karne ke liye hota hai.
+`cat` command ka use file ka content terminal par display karne ke liye hota hai. `cat` ka naam **concatenate** se aaya hai, lekin single file read karne ke liye bhi iska bahut use hota hai. [web:16]
 
 Command ka format:
 
@@ -335,7 +232,7 @@ cat filename
 cat readme
 ```
 
-Command run karne ke baad file ke andar stored password terminal par display hoga.
+Command run karne ke baad output mein next level ka password display hoga.
 
 Example:
 
@@ -344,169 +241,39 @@ bandit0@bandit:~$ cat readme
 PASSWORD_FOR_BANDIT1
 ```
 
-Actual password ko carefully copy karein.
+Actual password aapke terminal ke output mein hoga. Use carefully copy karein.
 
-`cat` command ka naam **concatenate** se aaya hai. Iska original purpose multiple files ko combine karna tha, lekin single file ka content display karne ke liye bhi iska bahut use hota hai. [16]
+## Absolute Path Aur Relative Path
 
----
+### Relative Path
 
-## `cat` Command Kaise Kaam Karti Hai?
-
-Jab aap ye command run karte ho:
+Agar aap already `/home/bandit0` directory mein ho, to file ko sirf naam se read kar sakte ho:
 
 ```bash
 cat readme
 ```
 
-To shell:
+Ye relative path hai, kyunki path current directory ke according diya gaya hai.
 
-1. `cat` program ko execute karta hai.
-2. `readme` file ko locate karta hai.
-3. File ka content read karta hai.
-4. Content ko terminal par print karta hai.
+### Absolute Path
 
-Process:
-
-```text
-cat command
-     ↓
-readme file locate
-     ↓
-File content read
-     ↓
-Terminal par output
-```
-
----
-
-## 4. `cd` Command
-
-`cd` command ka use ek directory se doosri directory mein move karne ke liye hota hai.
-
-`cd` ka full form hai:
-
-```text
-Change Directory
-```
-
-Example:
+File ka complete path:
 
 ```bash
-cd /home/bandit0
-```
-
-Home directory par wapas jaane ke liye:
-
-```bash
-cd ~
-```
-
-Ya simply:
-
-```bash
-cd
-```
-
-Ek directory ke andar jaane ke liye:
-
-```bash
-cd directory_name
-```
-
-Ek level peeche jaane ke liye:
-
-```bash
-cd ..
-```
-
-Level 1 ke basic solution mein `cd` ki zaroorat nahi padti kyunki login ke baad hum already home directory mein hote hain.
-
----
-
-## 5. `exit` Command
-
-`exit` command current shell ya SSH session ko close karti hai.
-
-Command:
-
-```bash
-exit
-```
-
-Is command ke baad aap remote Bandit server se logout ho jaoge aur apne local terminal par return kar jaoge.
-
-Alternative keyboard shortcut:
-
-```text
-Ctrl + D
-```
-
----
-
-# File Paths
-
-## Absolute Path
-
-Absolute path file ka complete location batata hai.
-
-Example:
-
-```text
 /home/bandit0/readme
 ```
 
-Is path ka meaning:
-
-```text
-/
-└── home
-    └── bandit0
-        └── readme
-```
-
-Absolute path hamesha root directory `/` se start hota hai.
-
-Aap file ko absolute path ke through bhi read kar sakte ho:
+Is path ke through bhi file read kar sakte ho:
 
 ```bash
 cat /home/bandit0/readme
 ```
 
----
+Ye absolute path hai, kyunki ye root directory `/` se start hota hai.
 
-## Relative Path
+## Linux Case Sensitivity
 
-Relative path current directory ke according file ka location batata hai.
-
-Agar aap already `/home/bandit0` directory mein ho, to:
-
-```bash
-cat readme
-```
-
-Linux automatically current directory mein `readme` file search karega.
-
-Comparison:
-
-```bash
-cat readme
-```
-
-Ye relative path hai.
-
-```bash
-cat /home/bandit0/readme
-```
-
-Ye absolute path hai.
-
----
-
-## File Name Case Sensitivity
-
-Linux file names case-sensitive hote hain.
-
-Ye files alag-alag samjhi jayengi:
+Linux file names case-sensitive hote hain. Ye teen alag file names hain:
 
 ```text
 readme
@@ -514,7 +281,7 @@ Readme
 README
 ```
 
-Bandit Level 1 mein correct file name hai:
+Bandit mein correct file name hai:
 
 ```text
 readme
@@ -526,49 +293,16 @@ Isliye command exactly is tarah run karein:
 cat readme
 ```
 
-Agar aap ye run karte ho:
+## Complete Walkthrough
 
-```bash
-cat Readme
-```
+### Step 1: Terminal Open Karein
 
-To error aa sakta hai:
+Linux Terminal, macOS Terminal, Windows PowerShell, Windows Terminal ya WSL open karein.
 
-```text
-cat: Readme: No such file or directory
-```
-
----
-
-# Complete Walkthrough
-
-## Step 1: Terminal Open Karein
-
-Apne computer par terminal open karein.
-
-Aap in tools ka use kar sakte hain:
-
-- Linux Terminal
-- macOS Terminal
-- Windows PowerShell
-- Windows Terminal
-- Kali Linux Terminal
-- WSL Terminal
-
----
-
-## Step 2: Bandit Level 0 Par Login Karein
-
-Command run karein:
+### Step 2: `bandit0` Par Login Karein
 
 ```bash
 ssh bandit0@bandit.labs.overthewire.org -p 2220
-```
-
-Alternative format:
-
-```bash
-ssh -p 2220 bandit0@bandit.labs.overthewire.org
 ```
 
 Password enter karein:
@@ -577,24 +311,19 @@ Password enter karein:
 bandit0
 ```
 
-Agar pehli baar connect kar rahe hain, to SSH host authenticity ke baare mein pooch sakta hai:
+Pehli baar connection par SSH host verification ke liye pooch sakta hai:
 
 ```text
-Are you sure you want to continue connecting
-(yes/no/[fingerprint])?
+Are you sure you want to continue connecting (yes/no/[fingerprint])?
 ```
 
-Type karein:
+Learning server ke liye type karein:
 
 ```text
 yes
 ```
 
----
-
-## Step 3: Current User Verify Karein
-
-Login ke baad check karein ki aap correct user ke through logged in hain:
+### Step 3: Current User Verify Karein
 
 ```bash
 whoami
@@ -606,13 +335,9 @@ Expected output:
 bandit0
 ```
 
-Agar output `bandit0` hai, to aap correct account mein ho.
+`whoami` command currently logged-in user ka naam show karti hai.
 
----
-
-## Step 4: Current Directory Check Karein
-
-Command:
+### Step 4: Current Directory Check Karein
 
 ```bash
 pwd
@@ -624,13 +349,7 @@ Expected output:
 /home/bandit0
 ```
 
-Is directory mein hi `readme` file present hai.
-
----
-
-## Step 5: Files Ki List Dekhein
-
-Command:
+### Step 5: Files Ki List Dekhein
 
 ```bash
 ls
@@ -642,120 +361,35 @@ Expected output:
 readme
 ```
 
-Isse confirm hota hai ki current directory mein `readme` naam ki file available hai.
-
----
-
-## Step 6: `readme` File Read Karein
-
-Command:
+### Step 6: File Read Karein
 
 ```bash
 cat readme
 ```
 
-Output kuch is format mein hoga:
+Output mein jo password aaye, use copy kar lein.
 
-```text
-PASSWORD_FOR_BANDIT1
-```
+Password type karte waqt extra space add na karein. Linux passwords case-sensitive hote hain.
 
-Actual output ko carefully copy karein.
-
-Password ke start ya end mein extra space add na karein.
-
----
-
-## Step 7: Bandit Level 0 Se Logout Karein
-
-Remote session close karne ke liye:
+### Step 7: Current SSH Session Close Karein
 
 ```bash
 exit
 ```
 
-Output kuch is tarah aa sakta hai:
+Isse aap `bandit0` session se logout ho jaoge.
 
-```text
-logout
-Connection to bandit.labs.overthewire.org closed.
-```
+### Step 8: `bandit1` Par Login Karein
 
----
-
-## Step 8: Bandit Level 1 Par Login Karein
-
-Ab username change hoga:
-
-```text
-bandit0 → bandit1
-```
-
-Command:
+Ab username `bandit0` nahi, balki `bandit1` hoga:
 
 ```bash
 ssh bandit1@bandit.labs.overthewire.org -p 2220
 ```
 
-Password ke roop mein `readme` file se mila hua password enter karein.
+Password ke liye `cat readme` command se mila hua actual password enter karein.
 
-Example format:
-
-```text
-Username: bandit1
-Password: PASSWORD_FROM_README
-Host:     bandit.labs.overthewire.org
-Port:     2220
-```
-
-Aap directly current session se bhi new SSH session start kar sakte ho:
-
-```bash
-ssh bandit1@bandit.labs.overthewire.org -p 2220
-```
-
----
-
-# Important Credential Flow
-
-Har Bandit level par password flow kuch is tarah hota hai:
-
-```text
-Current Level
-     ↓
-Challenge solve karo
-     ↓
-Password find karo
-     ↓
-Next username ke saath SSH login karo
-```
-
-Level 0 se Level 1 ka flow:
-
-```text
-Login User:     bandit0
-File:           readme
-Found Password: readme file ke andar stored password
-Next User:      bandit1
-```
-
-General SSH command:
-
-```bash
-ssh NEXT_USERNAME@bandit.labs.overthewire.org -p 2220
-```
-
-Level 1 ke liye:
-
-```bash
-ssh bandit1@bandit.labs.overthewire.org -p 2220
-```
-
----
-
-# Expected Commands
-
-Complete command sequence:
+## Complete Command Sequence
 
 ```bash
 ssh bandit0@bandit.labs.overthewire.org -p 2220
@@ -785,33 +419,35 @@ exit
 ssh bandit1@bandit.labs.overthewire.org -p 2220
 ```
 
----
+## Credential Flow
 
-# One-Line Solution
+Har Bandit level ka password next level mein login karne ke liye use hota hai.
 
-Agar aapko direct solution dekhna ho:
+Level 0 se Level 1 ka flow:
 
-```bash
-ssh bandit0@bandit.labs.overthewire.org -p 2220
+```text
+Current user:  bandit0
+File:         readme
+Action:       cat readme
+Result:       bandit1 ka password
+Next user:    bandit1
 ```
 
-Login ke baad:
+General format:
 
 ```bash
-cat readme
+ssh NEXT_USERNAME@bandit.labs.overthewire.org -p 2220
 ```
 
-File ke output mein jo password milega, usse next command run karein:
+Level 1 ke liye:
 
 ```bash
 ssh bandit1@bandit.labs.overthewire.org -p 2220
 ```
 
----
+## Common Errors
 
-# Common Errors
-
-## 1. `No such file or directory`
+### `No such file or directory`
 
 Error:
 
@@ -822,19 +458,13 @@ cat: readme: No such file or directory
 Possible reasons:
 
 - Aap wrong directory mein ho.
-- File name galat type kiya gaya hai.
-- File name mein uppercase ya lowercase mistake hai.
-- Aapne `readme` ke badle `Readme` type kiya hai.
+- File name galat type hua hai.
+- Uppercase/lowercase mistake hai.
 
-Current directory check karein:
+Check karein:
 
 ```bash
 pwd
-```
-
-Files check karein:
-
-```bash
 ls
 ```
 
@@ -844,9 +474,7 @@ Correct command:
 cat readme
 ```
 
----
-
-## 2. `Permission denied`
+### `Permission denied`
 
 Error:
 
@@ -854,45 +482,29 @@ Error:
 cat: readme: Permission denied
 ```
 
-Iska matlab ho sakta hai ki current user ko file read karne ki permission nahi hai.
-
 File permissions check karein:
 
 ```bash
 ls -l readme
 ```
 
-Output kuch is tarah ho sakta hai:
+Is level mein file normally readable honi chahiye. Agar problem aaye, username aur current directory verify karein.
 
-```text
--r-------- 1 bandit0 bandit0 33 Aug 8 20:00 readme
-```
+### SSH Permission Denied
 
-Linux file permissions ko baad ke Bandit levels mein detail mein study kiya jayega.
-
----
-
-## 3. `Permission denied, please try again`
-
-SSH login ke waqt:
+Error:
 
 ```text
 Permission denied, please try again.
 ```
 
-Possible reasons:
+Check karein:
 
-- Username galat hai.
-- Password galat hai.
-- Password copy karte waqt extra space aa gaya.
-- Aapne old level ka password use kiya.
-- Username `bandit1` ki jagah `bandit0` reh gaya.
-
-Correct Level 1 username:
-
-```text
-bandit1
-```
+- Username `bandit1` hai.
+- Port `2220` hai.
+- Password `readme` file se copy kiya gaya hai.
+- Password ke start ya end mein extra space nahi hai.
+- Uppercase aur lowercase characters correct hain.
 
 Correct command:
 
@@ -900,9 +512,11 @@ Correct command:
 ssh bandit1@bandit.labs.overthewire.org -p 2220
 ```
 
----
+### Password Display Nahi Ho Raha
 
-## 4. Wrong Port
+Linux terminal mein password type karte waqt characters ya asterisks display nahi hote. Password normally type karein aur `Enter` press karein.
+
+### Wrong Port
 
 Agar aap port specify nahi karte:
 
@@ -910,178 +524,108 @@ Agar aap port specify nahi karte:
 ssh bandit1@bandit.labs.overthewire.org
 ```
 
-To SSH default port `22` use karne ki try karega.
-
-Bandit ke liye correct port:
-
-```text
-2220
-```
-
-Correct command:
+To SSH default port `22` use karega. Bandit ke liye correct port `2220` hai:
 
 ```bash
 ssh bandit1@bandit.labs.overthewire.org -p 2220
 ```
 
----
+## Alternative File Reading Commands
 
-## 5. Password Copy Karne Mein Mistake
-
-Password copy karte waqt dhyan rakhein:
-
-- Extra spaces copy na hon.
-- Password ke start mein space na ho.
-- Password ke end mein space na ho.
-- Uppercase aur lowercase characters same rahen.
-- Similar characters ko carefully check karein.
-
-Examples of confusing characters:
-
-```text
-O  and  0
-l  and  1
-I  and  l
-```
-
-Linux passwords case-sensitive hote hain.
-
----
-
-# Alternative File Reading Commands
-
-`cat` ke alawa Linux mein file read karne ke kuch aur commands bhi hain.
-
-## `less`
+`cat` ke alawa file read karne ke liye ye commands bhi use ki ja sakti hain:
 
 ```bash
 less readme
 ```
 
-`less` large files ko page by page read karne ke liye useful hai.
-
-Exit karne ke liye:
-
-```text
-q
-```
-
-## `more`
+Large files ko page by page read karne ke liye `less` useful hai. Exit karne ke liye `q` press karein.
 
 ```bash
 more readme
 ```
 
-Ye bhi file ko screen by screen display karta hai.
-
-## `head`
+File ko screen by screen display karta hai.
 
 ```bash
 head readme
 ```
 
-Ye file ki starting lines display karta hai.
-
-## `tail`
+File ki starting lines display karta hai.
 
 ```bash
 tail readme
 ```
 
-Ye file ki last lines display karta hai.
+File ki last lines display karta hai.
 
-Level 1 ke liye simplest command:
+Level 1 ke liye simplest command hai:
 
 ```bash
 cat readme
 ```
 
----
+## Security Lessons
 
-# Security Lessons
-
-Is level se humein kuch important cybersecurity lessons milte hain:
+Is level se humein ye important lessons milte hain:
 
 - Sensitive information files ke andar stored ho sakti hai.
-- File names aur paths ko accurately identify karna zaroori hai.
-- Linux commands ke exact syntax ka importance hota hai.
-- File permissions decide karti hain ki kaun file read kar sakta hai.
-- Passwords ko securely handle karna chahiye.
-- Har level ke liye alag username aur password ho sakta hai.
-- SSH remote authentication provide karta hai.
-- Current directory ko samajhna file access ke liye important hai.
+- File name aur path accurately identify karna zaroori hai.
 - Linux commands case-sensitive hoti hain.
-- CTF challenges mein simple information gathering bhi important skill hai.
+- Current working directory ko samajhna important hai.
+- `ls` file discovery ke liye useful hai.
+- `cat` file contents read karne ke liye useful hai.
+- SSH remote authentication provide karta hai.
+- Har level ke liye username aur password change ho sakta hai.
+- Password ko copy karte waqt extra spaces se bachna chahiye.
+- File permissions decide karti hain ki kaun file read kar sakta hai.
 
----
-
-# Commands Summary
+## Commands Summary
 
 | Command | Purpose |
 |---|---|
 | `ssh user@host -p 2220` | Remote server par SSH login karta hai |
-| `whoami` | Current logged-in username dikhata hai |
-| `pwd` | Current working directory dikhata hai |
+| `whoami` | Current username dikhata hai |
+| `pwd` | Current directory dikhata hai |
 | `ls` | Current directory ki files list karta hai |
 | `ls -l` | Files ki detailed information dikhata hai |
 | `ls -a` | Hidden files bhi dikhata hai |
 | `cat readme` | `readme` file ka content display karta hai |
 | `cd directory` | Directory change karta hai |
 | `cd ..` | Parent directory mein move karta hai |
-| `exit` | Current SSH session close karta hai |
+| `exit` | SSH session close karta hai |
 | `less readme` | File ko page by page read karta hai |
-| `head readme` | File ki starting lines dikhata hai |
-| `tail readme` | File ki ending lines dikhata hai |
 
----
+## Final Solution
 
-# Final Solution
-
-Level 0 par login karein:
+Pehle `bandit0` par login karein:
 
 ```bash
 ssh bandit0@bandit.labs.overthewire.org -p 2220
 ```
 
-Current directory ki files dekhein:
+File list karein:
 
 ```bash
 ls
 ```
 
-Expected output:
-
-```text
-readme
-```
-
-Password read karein:
+`readme` file read karein:
 
 ```bash
 cat readme
 ```
 
-Ab `readme` file se mila password use karke Level 1 par login karein:
+Output mein mila hua password use karke `bandit1` par login karein:
 
 ```bash
 ssh bandit1@bandit.labs.overthewire.org -p 2220
 ```
 
-Password:
-
-```text
-readme
-```
-
-Yahan `readme` ka matlab file ka naam hai. Actual login password woh value hai jo aapko `cat readme` command run karne ke baad output mein milegi.
-
----
-
 ## Conclusion
 
-Bandit Level 1 mein humne seekha ki remote Linux server par SSH ke through login karke files ko kaise locate aur read kiya jata hai.
+Bandit Level 1 mein humne seekha ki SSH ke through remote Linux server par login karke files ko kaise locate aur read kiya jata hai.
 
-Is level ka main workflow tha:
+Complete workflow:
 
 ```text
 SSH Login
@@ -1097,7 +641,6 @@ Password Find Karna
 bandit1 User Se Login Karna
 ```
 
-Level 0 se Level 1 successfully complete karne ke baad aap next challenge ke liye ready hain.
+Level 0 se Level 1 complete karne ke baad aap next Bandit challenge ke liye ready hain.
 
-> **Security Note:** SSH ka use sirf unhi systems par karein jahan aapke paas permission ho. OverTheWire Bandit ek authorized cybersecurity learning environment hai.
-```
+> **Security Note:** SSH ka use sirf un systems par karein jahan aapke paas permission ho. OverTheWire Bandit ek authorized cybersecurity learning environment hai.
