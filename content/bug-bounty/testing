@@ -1,0 +1,220 @@
+---
+title: Sample IDOR Vulnerability in User Profile Endpoint
+platform: Bug Bounty
+difficulty: Medium
+category: IDOR
+date: 2026-08-08
+tags:
+  - Bug Bounty
+  - IDOR
+  - Access Control
+  - Web Security
+description: A sample responsible-disclosure write-up demonstrating how an insecure direct object reference can expose another user's profile data.
+---
+
+# 🔐 Sample IDOR Vulnerability in User Profile Endpoint
+
+> ⚠️ **Disclaimer:** This is a fictional example created for demonstrating the write-up format. The target, endpoint, identifiers, and data described here are not from a real bug bounty program.
+
+## 📋 Summary
+
+During authorized security testing, an application was found to expose user profile information through an insecure direct object reference (IDOR).
+
+The application used a numeric user ID in an API request without properly verifying whether the authenticated user was authorized to access the requested account.
+
+---
+
+## 🎯 Target
+
+**Program:** Example Bug Bounty Program  
+**Asset:** `https://example.com`  
+**Vulnerability:** Insecure Direct Object Reference (IDOR)  
+**Severity:** Medium  
+**Status:** Sample / Educational
+
+---
+
+## 🔍 Initial Observation
+
+After logging into the application, the profile page made an API request similar to:
+
+```http
+GET /api/users/1001/profile HTTP/1.1
+Host: example.com
+Authorization: Bearer [REDACTED]
+```
+
+The response contained profile information belonging to the authenticated user.
+
+Example response:
+
+```json
+{
+  "id": 1001,
+  "username": "testuser",
+  "email": "user@example.com"
+}
+```
+
+---
+
+## 🧪 Testing Access Control
+
+To determine whether the server properly enforced authorization, the user ID was changed from:
+
+```text
+1001
+```
+
+to:
+
+```text
+1002
+```
+
+The modified request was:
+
+```http
+GET /api/users/1002/profile HTTP/1.1
+Host: example.com
+Authorization: Bearer [REDACTED]
+```
+
+The server returned another user's profile information.
+
+---
+
+## 🚨 Vulnerability
+
+The application appeared to rely on the user-controlled object ID without verifying that the authenticated account was authorized to access that object.
+
+Conceptually:
+
+```text
+Authenticated User
+       │
+       │ requests user ID 1002
+       ▼
+   API Endpoint
+       │
+       │ ❌ Missing authorization check
+       ▼
+User 1002's Data
+```
+
+A secure implementation should instead perform an authorization check:
+
+```text
+Authenticated User
+       │
+       │ requests user ID 1002
+       ▼
+   API Endpoint
+       │
+       ▼
+Authorization Check
+       │
+   ┌───┴────┐
+   │        │
+Allowed   Denied
+   │        │
+   ▼        ▼
+ Data      403
+```
+
+---
+
+## 💥 Impact
+
+If this vulnerability existed in a real application, an attacker could potentially access information belonging to other users.
+
+Depending on the exposed fields, the impact could include:
+
+- Unauthorized profile access
+- Exposure of personal information
+- User enumeration
+- Privacy violations
+- Potential access to additional account-related data
+
+The actual impact would depend on what information the vulnerable endpoint exposes.
+
+---
+
+## 🛡️ Recommended Remediation
+
+The server should perform authorization checks for every request involving user-specific resources.
+
+For example:
+
+```text
+1. Authenticate the requesting user.
+2. Identify the requested resource.
+3. Verify that the user is authorized to access it.
+4. Return the resource only if authorization succeeds.
+5. Otherwise return HTTP 403 Forbidden.
+```
+
+Authorization should be enforced **server-side** rather than relying on client-side restrictions.
+
+---
+
+## 📊 Severity Considerations
+
+The severity of an IDOR vulnerability depends on the sensitivity of the exposed information and the actions an attacker can perform.
+
+| Factor | Assessment |
+|---|---|
+| Authentication required | Yes |
+| Authorization bypass | Yes |
+| Data exposure | User profile information |
+| User interaction required | No |
+| Confidentiality impact | Medium |
+| Integrity impact | None demonstrated |
+| Availability impact | None demonstrated |
+
+**Suggested severity:** Medium
+
+> Severity should ultimately be determined according to the affected program's vulnerability rating methodology.
+
+---
+
+## 🧠 Key Takeaways
+
+- Never trust object IDs supplied by the client.
+- Authentication does not automatically provide authorization.
+- Every sensitive API endpoint should verify access permissions.
+- Authorization checks must be performed server-side.
+- Testing access control should always be performed only against assets where you have explicit permission.
+
+---
+
+## 📝 Report Structure
+
+A good bug bounty report should clearly communicate:
+
+1. **What is vulnerable**
+2. **Where the vulnerability exists**
+3. **How it can be reproduced**
+4. **What the impact is**
+5. **How it can be fixed**
+6. **Evidence supporting the finding**
+
+Clear reproduction steps and realistic impact analysis make security reports much easier for triage teams to understand.
+
+---
+
+## 📚 References
+
+- OWASP — Insecure Direct Object Reference
+- OWASP — Broken Access Control
+- HackerOne — Vulnerability Disclosure Guidelines
+
+---
+
+## 🏁 Conclusion
+
+This example demonstrates the basic structure of a professional bug bounty report.
+
+The most important principle when testing real targets is **authorization**: only test systems and endpoints that are explicitly within the scope of a bug bounty or security testing program.
+
+**Author:** Saksham Singh Sachan
