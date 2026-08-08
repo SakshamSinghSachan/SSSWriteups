@@ -4,7 +4,7 @@ description: "Complete beginner-friendly walkthrough of OverTheWire Bandit Level
 platform: "CTF"
 category: "OverTheWire - Bandit"
 difficulty: "Beginner"
-date: "2026-06-19"
+date: "19-06-2026"
 tags:
   - OverTheWire
   - Bandit
