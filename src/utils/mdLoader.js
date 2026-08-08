@@ -126,6 +126,12 @@ export function loadAllWriteups() {
     });
   }
 
-  // Sort by date descending
-  return writeups.sort((a, b) => new Date(b.date) - new Date(a.date));
+ // Sort by custom order first, then by date
+return writeups.sort((a, b) => {
+  if (a.order !== b.order) {
+    return a.order - b.order;
+  }
+
+  return new Date(b.date) - new Date(a.date);
+});
 }
