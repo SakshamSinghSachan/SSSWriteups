@@ -1,6 +1,6 @@
 ---
-title: "OverTheWire Bandit - Level 2"
-description: "Beginner-friendly walkthrough of OverTheWire Bandit Level 2, including SSH, Linux filenames with spaces, quoting, escaping spaces, pwd, ls, cat, and moving to the next level."
+title: "OverTheWire Bandit - Level 2 to Level 3"
+description: "Beginner-friendly walkthrough of OverTheWire Bandit Level 2 to Level 3, including SSH login, filenames with spaces, shell parsing, quoting, ls, cat, PowerShell, and next-level authentication."
 platform: "CTF"
 category: "OverTheWire - Bandit"
 difficulty: "Beginner"
@@ -10,41 +10,44 @@ tags:
   - Bandit
   - Linux
   - SSH
-  - Linux Commands
-  - Filenames
-  - Spaces
+  - PowerShell
+  - Filenames With Spaces
   - Quoting
-  - Escaping
+  - Shell Parsing
   - cat
   - CTF
 ---
 
-# OverTheWire Bandit — Level 2
+# OverTheWire Bandit — Level 2 to Level 3
 
 ## Introduction
 
-Is writeup ka heading **Level 2** hai. Is challenge ka transition technically **Level 2 → Level 3** hai.
+Is writeup ka heading **Level 2 → Level 3** hai.
 
-Is level mein password ek aisi file ke andar stored hai jiske naam mein spaces hain:
+Is level mein next level ka password home directory mein present ek file ke andar stored hai. File ka naam hai:
 
 ```text
 spaces in this filename
 ```
 
-Linux terminal mein space ka special meaning hota hai. Shell spaces ko alag-alag arguments ke beech separator samajhta hai. Isliye humein filename ko quotes mein likhna ya spaces ko escape karna seekhna hoga.
+Filename mein spaces hone ki wajah se ise terminal mein directly use nahi kar sakte. Shell normally spaces ko separate arguments samajhta hai. Isliye file ko read karne ke liye filename ko double quotes ke andar likhna hoga:
+
+```bash
+cat "spaces in this filename"
+```
 
 ## Objective
 
-Level 2 complete karne ke liye humein:
+Is level mein humein:
 
 1. `bandit2` user se SSH ke through login karna hai.
-2. Home directory ki files dekhni hain.
+2. Home directory ki files list karni hain.
 3. Spaces wale filename ko identify karna hai.
-4. Filename ko correctly handle karke uska content read karna hai.
+4. Quotes ka use karke file ko read karna hai.
 5. Password copy karna hai.
-6. `bandit3` user se SSH login karna hai.
+6. `bandit3` user se next SSH login karna hai.
 
-## Given Credentials
+## Given Information
 
 Current level par login karne ke liye:
 
@@ -55,7 +58,7 @@ Username: bandit2
 Password: Previous level se mila password
 ```
 
-Challenge ka file name:
+Current file:
 
 ```text
 spaces in this filename
@@ -67,61 +70,70 @@ Next level ka username:
 bandit3
 ```
 
-Aapke provided solution ke according next level ka password hai:
+Found password:
 
 ```text
 aBZ0W5EmUfAf7kHTQeOwd8bauFJ2lAiG
 ```
 
-## Important Concepts
+# SSH Login
 
-Is level mein hum ye concepts seekhenge:
+## PowerShell Se Login
 
-- SSH login
-- Remote Linux server
-- Home directory
-- Current working directory
-- Files and directories
-- `pwd` command
-- `ls` command
-- `cat` command
-- Filename mein spaces
-- Shell arguments
-- Quoting
-- Single quotes
-- Double quotes
-- Backslash escaping
-- Tab completion
-- Next level login
+Windows PowerShell ya Windows Terminal open karein.
 
-## Linux Filename Mein Space
+Command:
 
-Linux files ke naam mein spaces allowed hote hain.
-
-Example:
-
-```text
-my file.txt
+```powershell
+ssh bandit2@bandit.labs.overthewire.org -p 2220
 ```
 
-Ye ek single filename hai, lekin shell ise normally do alag words samajh sakta hai:
+Aapke terminal mein command kuch is tarah dikh sakti hai:
 
-```text
-my
-file.txt
+```powershell
+PS C:\Users\dolla> ssh bandit2@bandit.labs.overthewire.org -p 2220
 ```
 
-Bandit Level 2 mein filename hai:
+Password prompt par previous level se mila password enter karein.
+
+Successful login ke baad prompt kuch is tarah dikh sakta hai:
+
+```text
+bandit2@bandit:~$
+```
+
+## Prompt Ko Samajhna
+
+```text
+bandit2@bandit:~$
+```
+
+Iske parts:
+
+```text
+bandit2  → Current username
+bandit    → Remote server ka hostname
+~         → Current user ki home directory
+$         → Normal user shell prompt
+```
+
+# Filename Mein Spaces
+
+## File Ka Actual Naam
+
+Is level mein file ka exact naam hai:
 
 ```text
 spaces in this filename
 ```
 
-Ye ek hi file ka naam hai, chaar alag filenames nahi.
+Ye ek single filename hai, chaar separate filenames nahi.
 
-## Shell Space Ko Kaise Samajhta Hai?
+Linux filenames mein spaces allowed hote hain. Lekin command line par spaces ka special meaning hota hai.
 
-Jab hum terminal mein command type karte hain, shell command ko parts ya arguments mein divide karta hai.
+## Shell Spaces Ko Kaise Treat Karta Hai?
+
+Shell command ko parts ya arguments mein divide karta hai.
 
 Example:
 
@@ -129,20 +141,20 @@ Example:
 cat file.txt
 ```
 
-Shell ise do parts ke roop mein samajhta hai:
+Shell is command ko samajhta hai:
 
 ```text
 Command:  cat
 Argument: file.txt
 ```
 
-Ab agar hum bina quotes ke ye command run karein:
+Agar hum bina quotes ke ye command run karein:
 
 ```bash
 cat spaces in this filename
 ```
 
-Shell ise is tarah samajh sakta hai:
+To shell ise is tarah interpret kar sakta hai:
 
 ```text
 Command:   cat
@@ -152,19 +164,86 @@ Argument3: this
 Argument4: filename
 ```
 
-Lekin humein `cat` ko ek hi complete filename dena hai:
+Lekin humein `cat` command ko ek hi complete filename dena hai. Isliye quotes ya escaping ka use karte hain.
+
+# File Read Karne Ke Methods
+
+## Method 1: Double Quotes
+
+Recommended command:
+
+```bash
+cat "spaces in this filename"
+```
+
+Double quotes shell ko batati hain ki quotes ke andar ka complete text ek single argument hai.
+
+Is command mein:
+
+```text
+Command:  cat
+Filename: spaces in this filename
+```
+
+Double quotes actual filename ka part nahi hoti. Ye sirf shell parsing ke liye use hoti hain.
+
+## Method 2: Single Quotes
+
+Single quotes bhi use kar sakte hain:
+
+```bash
+cat 'spaces in this filename'
+```
+
+Ye bhi complete filename ko ek single argument ke roop mein treat karne ke liye shell ko batata hai.
+
+## Method 3: Backslash Se Spaces Escape Karna
+
+Har space se pehle backslash lagakar bhi filename read kar sakte hain:
+
+```bash
+cat spaces\ in\ this\ filename
+```
+
+Backslash shell ko batata hai ki space argument separator nahi, balki filename ka part hai.
+
+## Methods Comparison
+
+| Method | Command |
+|---|---|
+| Double quotes | `cat "spaces in this filename"` |
+| Single quotes | `cat 'spaces in this filename'` |
+| Backslash escaping | `cat spaces\ in\ this\ filename` |
+
+Teeno commands same file ka content display karengi.
+
+Beginner ke liye sabse readable command hai:
+
+```bash
+cat "spaces in this filename"
+```
+
+# Linux Commands
+
+## `ls` Command
+
+`ls` command current directory ke andar available files aur directories ki list show karti hai.
+
+```bash
+ls
+```
+
+Output:
 
 ```text
 spaces in this filename
 ```
 
-Is problem ko solve karne ke liye quotes ya backslash ka use karte hain.
+Output mein spaces ki wajah se filename multiple words jaisa dikh sakta hai, lekin ye ek hi file hai.
 
 ## `pwd` Command
 
 `pwd` ka full form **Print Working Directory** hai.
-
-Ye command batati hai ki aap abhi kis directory ke andar ho.
 
 ```bash
 pwd
@@ -176,34 +255,20 @@ Expected output:
 /home/bandit2
 ```
 
-Bandit Level 2 mein file home directory ke andar located hai, isliye login ke baad normally `cd` command ki zaroorat nahi padti.
+Isse confirm hota hai ki aap `bandit2` ki home directory mein ho.
 
-## `ls` Command
+## `whoami` Command
 
-`ls` command current directory ke andar available files aur directories ki list display karti hai.
+Current user verify karne ke liye:
 
 ```bash
-ls
+whoami
 ```
 
 Expected output:
 
 ```text
-spaces in this filename
-```
-
-Output mein spaces ki wajah se filename visually multiple words jaisa dikhta hai, lekin ye ek single file hai.
-
-Detailed information dekhne ke liye:
-
-```bash
-ls -l
-```
-
-Hidden files ke saath list dekhne ke liye:
-
-```bash
-ls -la
+bandit2
 ```
 
 ## `cat` Command
@@ -216,199 +281,105 @@ Basic format:
 cat filename
 ```
 
-Normal filename ke liye example:
-
-```bash
-cat readme
-```
-
-Spaces wale filename ke liye filename ko correctly represent karna zaroori hai.
-
-## Method 1: Single Quotes
-
-Filename ko single quotes ke andar likh sakte hain:
-
-```bash
-cat 'spaces in this filename'
-```
-
-Single quotes shell ko batati hain ki quotes ke andar ka complete text ek hi argument hai.
-
-Is command mein:
-
-```text
-Command:  cat
-Filename: spaces in this filename
-```
-
-Single quotes filename ka actual part nahi hoti. Ye sirf shell ko filename correctly samjhane ke liye use hoti hain.
-
-## Method 2: Double Quotes
-
-Aap double quotes ka bhi use kar sakte hain:
+Spaces wale filename ke liye:
 
 ```bash
 cat "spaces in this filename"
 ```
 
-Ye bhi shell ko complete filename ko ek single argument treat karne ke liye kehta hai.
+# Complete Walkthrough
 
-Beginner ke liye dono commands easy hain:
+## Step 1: PowerShell Open Karein
 
-```bash
-cat 'spaces in this filename'
+Windows par PowerShell ya Windows Terminal open karein.
+
+Example:
+
+```powershell
+PS C:\Users\dolla>
 ```
 
-```bash
-cat "spaces in this filename"
-```
+## Step 2: `bandit2` Par Login Karein
 
-## Method 3: Backslash Se Spaces Escape Karna
-
-Backslash `\\` ka use spaces ko escape karne ke liye kiya ja sakta hai.
-
-```bash
-cat spaces\ in\ this\ filename
-```
-
-Yahan har space se pehle backslash lagaya gaya hai:
-
-```text
-spaces\ in\ this\ filename
-```
-
-Backslash shell ko batata hai ki uske baad wala space argument separator nahi, balki filename ka actual part hai.
-
-Ye command bhi correct hai:
-
-```bash
-cat spaces\ in\ this\ filename
-```
-
-## Quoting Aur Escaping Ka Comparison
-
-| Method | Command |
-|---|---|
-| Single quotes | `cat 'spaces in this filename'` |
-| Double quotes | `cat "spaces in this filename"` |
-| Backslash escaping | `cat spaces\ in\ this\ filename` |
-
-Teeno methods same file ka content display karengi.
-
-Beginner ke liye sabse readable method single quotes hai:
-
-```bash
-cat 'spaces in this filename'
-```
-
-## Tab Completion
-
-Linux terminal mein Tab key filename complete karne mein help karti hai.
-
-Aap type karein:
-
-```bash
-cat spa
-```
-
-Ab `Tab` press karein.
-
-Terminal automatically filename complete kar sakta hai, jaise:
-
-```bash
-cat spaces\ in\ this\ filename
-```
-
-Tab completion ke benefits:
-
-- Typing mistakes kam hoti hain.
-- Long filenames easily complete hote hain.
-- Spaces aur special characters automatically handle ho sakte hain.
-- Commands fast type hoti hain.
-
-## Complete Walkthrough
-
-### Step 1: Terminal Open Karein
-
-Linux Terminal, macOS Terminal, Windows PowerShell, Windows Terminal ya WSL open karein.
-
-### Step 2: `bandit2` Par Login Karein
-
-```bash
+```powershell
 ssh bandit2@bandit.labs.overthewire.org -p 2220
 ```
 
-Password ke roop mein previous level se mila hua password enter karein.
+Password prompt par previous level ka password enter karein.
 
-### Step 3: Current User Verify Karein
+## Step 3: Current User Check Karein
 
 ```bash
 whoami
 ```
 
-Expected output:
+Output:
 
 ```text
 bandit2
 ```
 
-### Step 4: Current Directory Check Karein
+## Step 4: Current Directory Check Karein
 
 ```bash
 pwd
 ```
 
-Expected output:
+Output:
 
 ```text
 /home/bandit2
 ```
 
-### Step 5: Files Ki List Dekhein
+## Step 5: Files Ki List Dekhein
 
 ```bash
 ls
 ```
 
-Expected output:
+Output:
 
 ```text
 spaces in this filename
 ```
 
-### Step 6: Spaces Wali File Read Karein
+## Step 6: Spaces Wali File Read Karein
 
-Recommended command:
-
-```bash
-cat 'spaces in this filename'
-```
-
-Alternative command:
+Double quotes ka use karein:
 
 ```bash
 cat "spaces in this filename"
 ```
 
-Another valid command:
-
-```bash
-cat spaces\ in\ this\ filename
-```
-
-Output mein next level ka password display hoga:
+Output:
 
 ```text
 aBZ0W5EmUfAf7kHTQeOwd8bauFJ2lAiG
 ```
 
-### Step 7: Current Session Close Karein
+## Step 7: Password Copy Karein
+
+Found password:
+
+```text
+aBZ0W5EmUfAf7kHTQeOwd8bauFJ2lAiG
+```
+
+Password copy karte waqt:
+
+- Extra space copy na karein.
+- Uppercase aur lowercase characters same rakhein.
+- Password ke beginning aur ending ko carefully check karein.
+
+## Step 8: SSH Session Close Karein
 
 ```bash
 exit
 ```
 
-### Step 8: `bandit3` Par Login Karein
+Aap `Ctrl + D` bhi press kar sakte hain.
+
+## Step 9: `bandit3` Par Login Karein
 
 ```bash
 ssh bandit3@bandit.labs.overthewire.org -p 2220
@@ -420,9 +391,30 @@ Password enter karein:
 aBZ0W5EmUfAf7kHTQeOwd8bauFJ2lAiG
 ```
 
-## Complete Command Sequence
+# Actual Terminal Session
+
+Aapka terminal session roughly is tarah dikh sakta hai:
+
+```text
+PS C:\Users\dolla> ssh bandit2@bandit.labs.overthewire.org -p 2220
+bandit2@bandit.labs.overthewire.org's password:
+bandit2@bandit:~$ ls
+spaces in this filename
+bandit2@bandit:~$ cat "spaces in this filename"
+aBZ0W5EmUfAf7kHTQeOwd8bauFJ2lAiG
+bandit2@bandit:~$ exit
+logout
+```
+
+Uske baad next level par login karein:
 
 ```bash
+ssh bandit3@bandit.labs.overthewire.org -p 2220
+```
+
+# Complete Command Sequence
+
+```powershell
 ssh bandit2@bandit.labs.overthewire.org -p 2220
 ```
 
@@ -439,7 +431,7 @@ ls
 ```
 
 ```bash
-cat 'spaces in this filename'
+cat "spaces in this filename"
 ```
 
 ```bash
@@ -450,7 +442,9 @@ exit
 ssh bandit3@bandit.labs.overthewire.org -p 2220
 ```
 
-## Incorrect Command Aur Error
+# Common Errors
+
+## `No such file or directory`
 
 Agar aap ye command run karte hain:
 
@@ -458,7 +452,9 @@ Agar aap ye command run karte hain:
 cat spaces in this filename
 ```
 
-To shell ise multiple arguments ke roop mein interpret kar sakta hai. Is wajah se error aa sakta hai:
+To shell filename ko multiple arguments ke roop mein treat kar sakta hai.
+
+Possible error:
 
 ```text
 cat: spaces: No such file or directory
@@ -467,45 +463,15 @@ cat: this: No such file or directory
 cat: filename: No such file or directory
 ```
 
-Correct commands:
+Correct command:
 
 ```bash
-cat 'spaces in this filename'
+cat "spaces in this filename"
 ```
 
-Ya:
+## Filename Spelling Error
 
-```bash
-cat spaces\ in\ this\ filename
-```
-
-## Common Errors
-
-### `No such file or directory`
-
-Possible reasons:
-
-- Filename ko quotes mein nahi likha.
-- Spaces escape nahi kiye.
-- Filename mein spelling mistake hai.
-- Aap wrong directory mein ho.
-
-Check karein:
-
-```bash
-pwd
-ls
-```
-
-Recommended command:
-
-```bash
-cat 'spaces in this filename'
-```
-
-### Filename Not Found
-
-Linux filenames case-sensitive hote hain. Ye names alag-alag hain:
+Linux filenames case-sensitive hote hain. Ye filenames alag-alag hain:
 
 ```text
 spaces in this filename
@@ -513,15 +479,15 @@ Spaces in this filename
 spaces In this filename
 ```
 
-Command mein exact filename use karein:
+Correct filename exactly ye hai:
 
-```bash
-cat 'spaces in this filename'
+```text
+spaces in this filename
 ```
 
-### SSH Permission Denied
+## SSH Permission Denied
 
-Agar next level par login karte waqt error aaye:
+Error:
 
 ```text
 Permission denied, please try again.
@@ -531,7 +497,7 @@ Check karein:
 
 - Username `bandit3` hai.
 - Port `2220` use ho raha hai.
-- Password exactly copy hua hai.
+- Password exact copy hua hai.
 - Password ke start ya end mein extra space nahi hai.
 - Similar characters carefully check kiye gaye hain.
 
@@ -541,68 +507,87 @@ Correct command:
 ssh bandit3@bandit.labs.overthewire.org -p 2220
 ```
 
-### Password Screen Par Show Nahi Hota
+## Password Display Nahi Hota
 
-Linux terminal password type karte waqt characters ya asterisks display nahi karta. Password type karein aur `Enter` press karein.
+Linux terminal password type karte waqt characters ya asterisks display nahi karta. Password normally type karein aur `Enter` press karein.
 
-## File Name Aur Command Argument
+## Prompt Par Extra `|` Character
 
-Command line mein space normally arguments ko separate karta hai.
+Kabhi-kabhi terminal copy karte waqt prompt ke baad `|` ya koi extra cursor character dikh sakta hai.
 
 Example:
 
-```bash
-command argument1 argument2
+```text
+bandit2@bandit:~$ |
 ```
 
-Yahan command ko do arguments milte hain.
+Ye usually cursor ya copied terminal formatting hoti hai. Isse password ka part na samjhein.
 
-Agar ek argument ke andar spaces hon, to quotes use karni padti hain:
+# Shell Parsing Ko Samajhna
 
-```bash
-command "argument with spaces"
-```
+Shell command ko execute karne se pehle uski parsing karta hai.
 
-Bandit Level 2 mein:
+Command:
 
 ```bash
-cat 'spaces in this filename'
+cat "spaces in this filename"
 ```
 
-Yahan `cat` ko ek hi filename argument milta hai.
+Shell ise samajhta hai:
 
-## Security Lessons
+```text
+Program:  cat
+Argument: spaces in this filename
+```
+
+Without quotes:
+
+```bash
+cat spaces in this filename
+```
+
+Shell ise multiple arguments mein divide kar sakta hai:
+
+```text
+Program:   cat
+Argument1: spaces
+Argument2: in
+Argument3: this
+Argument4: filename
+```
+
+Quotes ka purpose shell parsing ko control karna hai.
+
+# Security Lessons
 
 Is level se humein ye important lessons milte hain:
 
 - Linux filenames mein spaces allowed hote hain.
 - Shell spaces ko argument separators samajhta hai.
-- Quotes complete text ko ek argument ke roop mein preserve karti hain.
-- Backslash special characters ko escape karta hai.
-- Tab completion typing errors reduce karta hai.
-- File ko read karne se pehle uska exact name verify karna chahiye.
+- Quotes complete filename ko single argument banati hain.
+- Backslash spaces ko escape kar sakta hai.
+- Exact filename identify karna zaroori hai.
 - Linux filenames case-sensitive hote hain.
-- User input aur shell parsing ko samajhna cybersecurity mein important hai.
-- Special characters wali files ke saath carefully kaam karna chahiye.
+- Command-line parsing ko samajhna cybersecurity mein important hai.
+- Passwords ko carefully copy karna chahiye.
+- Har level complete hone ke baad next username ke saath new SSH login karna hota hai.
 
-## Commands Summary
+# Commands Summary
 
 | Command | Purpose |
 |---|---|
 | `ssh user@host -p 2220` | Remote server par SSH login karta hai |
 | `whoami` | Current username show karta hai |
 | `pwd` | Current working directory show karta hai |
-| `ls` | Files aur directories ki list show karta hai |
-| `ls -l` | Detailed file information show karta hai |
-| `cat 'file name'` | Spaces wale filename ka content read karta hai |
-| `cat "file name"` | Quotes ke through file read karta hai |
-| `cat file\ name` | Escaped spaces ke through file read karta hai |
-| `cd directory` | Directory change karta hai |
+| `ls` | Current directory ki files list karta hai |
+| `cat "spaces in this filename"` | Spaces wale filename ka content read karta hai |
+| `cat 'spaces in this filename'` | Single quotes ke through file read karta hai |
+| `cat spaces\ in\ this\ filename` | Escaped spaces ke through file read karta hai |
 | `exit` | SSH session close karta hai |
 
-## Final Solution
+# Final Solution
 
-Pehle `bandit2` par login karein:
+`bandit2` par login karein:
 
 ```bash
 ssh bandit2@bandit.labs.overthewire.org -p 2220
@@ -614,10 +599,10 @@ Files dekhein:
 ls
 ```
 
-Spaces wale filename ko quotes ke saath read karein:
+Spaces wale filename ko double quotes ke saath read karein:
 
 ```bash
-cat 'spaces in this filename'
+cat "spaces in this filename"
 ```
 
 Password:
@@ -632,9 +617,9 @@ Ab `bandit3` par login karein:
 ssh bandit3@bandit.labs.overthewire.org -p 2220
 ```
 
-## Conclusion
+# Conclusion
 
-Bandit Level 2 mein humne seekha ki Linux terminal mein spaces wale filename ke saath kaise kaam kiya jata hai.
+Bandit Level 2 → Level 3 mein humne seekha ki spaces wale filename ko Linux terminal mein correctly kaise access kiya jata hai.
 
 Complete workflow:
 
@@ -643,13 +628,15 @@ SSH Login as bandit2
         ↓
 Current Directory Check
         ↓
-Files List Karna
+ls Command
         ↓
-Spaces Wala Filename Identify Karna
+Spaces Wala Filename Identify
         ↓
-Quotes Ya Backslash Ka Use Karna
+Quotes Ka Use
         ↓
-File Ka Password Read Karna
+cat Command
+        ↓
+Password Find
         ↓
 SSH Login as bandit3
 ```
@@ -657,7 +644,7 @@ SSH Login as bandit3
 Is level ka sabse important command hai:
 
 ```bash
-cat 'spaces in this filename'
+cat "spaces in this filename"
 ```
 
 > **Security Note:** SSH ka use sirf un systems par karein jahan aapke paas permission ho. OverTheWire Bandit ek authorized cybersecurity learning environment hai.
