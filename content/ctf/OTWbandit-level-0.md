@@ -4,7 +4,7 @@ description: "Connecting to the OverTheWire Bandit server using SSH."
 platform: "OverTheWire"
 category: "Linux"
 difficulty: "Beginner"
-date: "2026-08-08"
+date: "2026-06-19"
 tags:
   - OverTheWire
   - Bandit
