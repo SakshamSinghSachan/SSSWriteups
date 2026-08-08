@@ -5,6 +5,7 @@ platform: "CTF"
 category: "OverTheWire - Bandit"
 difficulty: "Beginner"
 date: "19-06-2026"
+order: 1
 tags:
   - OverTheWire
   - Bandit
