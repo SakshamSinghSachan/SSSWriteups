@@ -18,29 +18,54 @@ export function parseFrontMatter(rawContent) {
 
   yamlBlock.split("\n").forEach((line) => {
     const trimmed = line.trim();
+
     if (!trimmed || trimmed.startsWith("#")) return;
 
+    // Handle YAML arrays such as:
+    // tags:
+    //   - Linux
+    //   - SSH
     if (trimmed.startsWith("- ") && currentArrayKey) {
-      const item = trimmed.slice(2).trim().replace(/^['"]|['"]$/g, "");
+      const item = trimmed
+        .slice(2)
+        .trim()
+        .replace(/^['"]|['"]$/g, "");
+
       if (!Array.isArray(metadata[currentArrayKey])) {
         metadata[currentArrayKey] = [];
       }
-      if (item) metadata[currentArrayKey].push(item);
-    } else {
-      const colonIndex = trimmed.indexOf(":");
-      if (colonIndex !== -1) {
-        const key = trimmed.slice(0, colonIndex).trim();
-        let value = trimmed.slice(colonIndex + 1).trim().replace(/^['"]|['"]$/g, "");
-        currentArrayKey = key;
-        if (value) {
-          metadata[key] = value;
-        }
+
+      if (item) {
+        metadata[currentArrayKey].push(item);
+      }
+
+      return;
+    }
+
+    const colonIndex = trimmed.indexOf(":");
+
+    if (colonIndex !== -1) {
+      const key = trimmed.slice(0, colonIndex).trim();
+
+      let value = trimmed
+        .slice(colonIndex + 1)
+        .trim()
+        .replace(/^['"]|['"]$/g, "");
+
+      currentArrayKey = key;
+
+      if (value) {
+        metadata[key] = value;
       }
     }
   });
 
-  return { metadata, content: body };
+  return {
+    metadata,
+    content: body,
+  };
 }
+
 
 function formatPlatformName(folderName) {
   const map = {
@@ -51,8 +76,13 @@ function formatPlatformName(folderName) {
     pentesting: "Pentesting",
     research: "Research",
   };
-  return map[folderName.toLowerCase()] || folderName.charAt(0).toUpperCase() + folderName.slice(1);
+
+  return (
+    map[folderName.toLowerCase()] ||
+    folderName.charAt(0).toUpperCase() + folderName.slice(1)
+  );
 }
+
 
 export function loadAllWriteups() {
   const modules = import.meta.glob("/content/**/*.md", {
@@ -63,75 +93,129 @@ export function loadAllWriteups() {
   const writeups = [];
 
   for (const path in modules) {
-    // Ignore .gitkeep or non-markdown
+    // Ignore non-markdown files
     if (!path.endsWith(".md")) continue;
 
-    const raw = typeof modules[path] === "string" ? modules[path] : modules[path]?.default || "";
+    const raw =
+      typeof modules[path] === "string"
+        ? modules[path]
+        : modules[path]?.default || "";
+
     if (!raw.trim()) continue;
 
     const { metadata, content } = parseFrontMatter(raw);
 
-    // Extract path components e.g. /content/portswigger/lab-1.md
+   
     const relativePath = path.replace(/^\/content\//, "");
+
     const parts = relativePath.split("/");
+
     const folder = parts.length > 1 ? parts[0] : "general";
+
     const filename = parts[parts.length - 1].replace(/\.md$/, "");
 
     // Unique ID
-    const fullSlug = relativePath.replace(/\.md$/, "").replace(/[\/\\]/g, "-");
+    const fullSlug = relativePath
+      .replace(/\.md$/, "")
+      .replace(/[\/\\]/g, "-");
+
     const simpleSlug = filename;
 
+    // Platform
     const defaultPlatform = formatPlatformName(folder);
+
     const platform = metadata.platform || defaultPlatform;
-    const title = metadata.title || filename.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+
+    // Basic metadata
+    const title =
+      metadata.title ||
+      filename
+        .replace(/[-_]/g, " ")
+        .replace(/\b\w/g, (c) => c.toUpperCase());
+
     const category = metadata.category || platform;
+
     const difficulty = metadata.difficulty || "Medium";
+
     const date = metadata.date || "2026-08-05";
+
     const order = Number(metadata.order ?? 999);
 
+    // Tags
     let tags = [];
+
     if (Array.isArray(metadata.tags)) {
       tags = metadata.tags;
     } else if (typeof metadata.tags === "string") {
-      tags = metadata.tags.split(",").map((t) => t.trim()).filter(Boolean);
+      tags = metadata.tags
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean);
     }
+
     if (tags.length === 0) {
       tags = [platform, category].filter(Boolean);
     }
 
-    const wordCount = content.trim().split(/\s+/).filter(Boolean).length;
-    const readTime = Math.max(1, Math.ceil(wordCount / 200)) + " min";
+    // Reading time
+    const wordCount = content
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean).length;
 
+    const readTime =
+      Math.max(1, Math.ceil(wordCount / 200)) + " min";
+
+    // Description
     let description = metadata.description || "";
+
     if (!description) {
-      const cleanBody = content.replace(/#+\s+.*?\n/g, "").trim();
-      const firstParagraph = cleanBody.split(/\n\n+/)[0] || "";
-      description = firstParagraph.replace(/[*_`#]/g, "").slice(0, 150);
-      if (firstParagraph.length > 150) description += "...";
+      const cleanBody = content
+        .replace(/#+\s+.*?\n/g, "")
+        .trim();
+
+      const firstParagraph =
+        cleanBody.split(/\n\n+/)[0] || "";
+
+      description = firstParagraph
+        .replace(/[*_`#]/g, "")
+        .slice(0, 150);
+
+      if (firstParagraph.length > 150) {
+        description += "...";
+      }
     }
 
+    // Add writeup to array
     writeups.push({
       id: fullSlug,
       simpleId: simpleSlug,
+
       title,
       platform,
       category,
       difficulty,
+
       date,
+      order,
+
       time: readTime,
+
       tags,
       description,
+
       content,
+
       path: relativePath,
     });
   }
 
- // Sort by custom order first, then by date
-return writeups.sort((a, b) => {
-  if (a.order !== b.order) {
-    return a.order - b.order;
-  }
+ 
+  return writeups.sort((a, b) => {
+    if (a.order !== b.order) {
+      return a.order - b.order;
+    }
 
-  return new Date(b.date) - new Date(a.date);
-});
+    return new Date(b.date) - new Date(a.date);
+  });
 }
