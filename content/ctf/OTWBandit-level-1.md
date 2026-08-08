@@ -1,6 +1,6 @@
 ---
-title: "OverTheWire Bandit - Level 1"
-description: "Beginner-friendly walkthrough of OverTheWire Bandit Level 1 to Level 2, including SSH, Linux files, filenames beginning with a dash, standard input, command options, cat, paths, and authentication."
+title: "OverTheWire Bandit - Level 1 to Level 2"
+description: "Beginner-friendly walkthrough of OverTheWire Bandit Level 1 to Level 2, including SSH login, hidden files, ls -la, special filenames, dash options, relative paths, cat, and the ./ technique."
 platform: "CTF"
 category: "OverTheWire - Bandit"
 difficulty: "Beginner"
@@ -10,204 +10,309 @@ tags:
   - Bandit
   - Linux
   - SSH
+  - ls
+  - ls-la
   - cat
-  - Standard Input
-  - File Paths
-  - Command Options
-  - Authentication
+  - Special Filenames
+  - Relative Paths
+  - Linux Options
   - CTF
 ---
 
-# OverTheWire Bandit — Level 1
+# OverTheWire Bandit — Level 1 to Level 2
 
 ## Introduction
 
-Is challenge ko technically **Bandit Level 1 → Level 2** kaha jata hai.
+Is writeup ka heading **Level 1 → Level 2** hai.
 
-Is level mein humein `bandit1` user ke home directory mein ek aisi file read karni hai jiska naam sirf ek dash hai:
+Is level mein next level ka password home directory mein ek aisi file ke andar stored hai jiska naam sirf ek hyphen hai:
 
 ```text
 -
 ```
 
-Normal file ko read karne ke liye hum command use karte hain:
+Linux command line mein hyphen `-` ka special meaning hota hai. Bahut saare commands mein `-` options ya flags ke liye use hota hai. Isliye agar hum simple command run karein:
 
 ```bash
-cat filename
+cat -
 ```
 
-Lekin is challenge mein filename `-` hai. Linux commands mein single dash ka special meaning ho sakta hai. `cat -` ko normally file named `-` ke roop mein nahi, balki standard input ke roop mein interpret kiya jata hai. Isliye humein file ka path explicitly specify karna hoga.
-
-Is level ka safest solution hai:
+To `cat` isse normal filename ke bajay standard input ke roop mein interpret kar sakta hai. File ko correctly read karne ke liye hum file ka path explicitly denge:
 
 ```bash
 cat ./-
 ```
 
-Is command se `-` file ka content display hoga. Us content mein `bandit2` user ka password stored hai.
-
 ## Objective
 
-Humein ye steps complete karne hain:
+Is level mein humein:
 
-1. `bandit1` user ke through SSH se login karna.
-2. Current directory check karna.
-3. Home directory ki files list karna.
-4. Dash (`-`) naam wali file identify karna.
-5. `cat ./-` command se file read karna.
-6. File se mila password copy karna.
-7. `bandit2` user ke through SSH login karna.
+1. `bandit1` user se SSH ke through login karna hai.
+2. Home directory ki files check karni hain.
+3. Hidden files aur detailed file list dekhni hai.
+4. Hyphen `-` naam wali file identify karni hai.
+5. `./-` path ka use karke file read karni hai.
+6. Password copy karna hai.
+7. `bandit2` user se next SSH login karna hai.
 
 ## Given Credentials
 
-`bandit1` par login karne ke liye:
+Current level par login karne ke liye:
 
 ```text
 Host:     bandit.labs.overthewire.org
 Port:     2220
 Username: bandit1
-Password: rRGizSaX8Mk1RTb1CNQoXTcYZWU6lgzi
+Password: Previous level se mila password
 ```
 
-Next level ke liye:
-
-```text
-Next Username: bandit2
-```
-
-Password `-` naam wali file ke andar stored hai.
-
-## Main Concept
-
-Is level ka main concept hai:
-
-> Aisi file ko safely read karna jiska naam `-` ho.
-
-Normal command:
-
-```bash
-cat -
-```
-
-Is challenge mein problem create karegi, kyunki `cat` ke liye `-` standard input ka meaning rakhta hai.
-
-Correct command:
-
-```bash
-cat ./-
-```
-
-## SSH Login
-
-Pehle `bandit1` user ke through remote Bandit server par login karein:
-
-```bash
-ssh bandit1@bandit.labs.overthewire.org -p 2220
-```
-
-Password:
-
-```text
-rRGizSaX8Mk1RTb1CNQoXTcYZWU6lgzi
-```
-
-Command ke parts:
-
-| Part | Meaning |
-|---|---|
-| `ssh` | Secure Shell client start karta hai |
-| `bandit1` | Remote server ka username |
-| `@` | Username aur hostname ko separate karta hai |
-| `bandit.labs.overthewire.org` | Remote Bandit server ka hostname |
-| `-p` | Custom port specify karta hai |
-| `2220` | Bandit SSH service ka port |
-
-## `pwd` Command
-
-Login ke baad current directory check karein:
-
-```bash
-pwd
-```
-
-Expected output generally kuch is tarah hota hai:
-
-```text
-/home/bandit1
-```
-
-Ye Bandit user ki home directory hai. Challenge ki file isi directory mein available hai.
-
-## `ls` Command
-
-Current directory ki files dekhne ke liye:
-
-```bash
-ls
-```
-
-Expected output:
+Current level ki file:
 
 ```text
 -
 ```
 
-Yahan output mein sirf ek dash dikh raha hai. Ye hi actual filename hai.
+Next level ka username:
 
-Important: Ye normal hyphen jaisa dikh raha hai, lekin yahan ye file ka actual naam hai.
+```text
+bandit2
+```
 
-## Dash (`-`) Ka Special Meaning
+Found password:
 
-Linux command-line tools mein dash ka use do common purposes ke liye hota hai:
+```text
+rRGizSaX8Mk1RTb1CNQoXTcYZWU6lgzi
+```
 
-1. Command options ke liye.
-2. Standard input ya standard output represent karne ke liye.
+## Important Concepts
+
+Is level mein hum ye concepts seekhenge:
+
+- SSH login
+- PowerShell se SSH connection
+- Linux home directory
+- `ls` command
+- `ls -la` command
+- Hidden files
+- File permissions
+- Filename ke roop mein hyphen
+- Command options aur flags
+- Standard input
+- Relative path
+- `./` notation
+- `cat` command
+- Next-level authentication
+
+# SSH Login
+
+## `bandit1` Par Login Karna
+
+Previous level se mila hua password use karke `bandit1` par login karein:
+
+```powershell
+ssh bandit1@bandit.labs.overthewire.org -p 2220
+```
+
+Password prompt par previous level ka password enter karein.
+
+Aap Windows PowerShell se bhi SSH command run kar sakte hain:
+
+```powershell
+PS C:\Users\dolla> ssh bandit1@bandit.labs.overthewire.org -p 2220
+```
+
+> **Important:** Username `bandit1` hai. Kabhi-kabhi terminal font ya typing ki wajah se `banditl` jaisa dikh sakta hai, lekin yahan last character number `1` hai, lowercase letter `l` nahi.
+
+## SSH Prompt Ko Samajhna
+
+Login ke baad prompt kuch is tarah dikh sakta hai:
+
+```text
+bandit1@bandit:~$
+```
+
+Iska meaning:
+
+```text
+bandit1  → Current username
+bandit    → Remote machine ka hostname
+~         → Current user ki home directory
+$         → Normal user shell prompt
+```
+
+# Linux Directory Commands
+
+## `pwd` Command
+
+`pwd` ka full form **Print Working Directory** hai. Ye batata hai ki aap current time par kis directory mein ho.
+
+```bash
+pwd
+```
+
+Expected output:
+
+```text
+/home/bandit1
+```
+
+Is level ki file home directory mein located hai.
+
+## `ls` Command
+
+`ls` command current directory ke andar files aur directories ki list show karti hai.
+
+```bash
+ls
+```
+
+Is level mein simple `ls` ka output confusing ya blank dikh sakta hai, especially agar terminal output copy karte waqt filename `-` clearly visible na ho.
+
+Isliye detailed list ke liye `ls -la` use karna better hai.
+
+## `ls -la` Command
+
+```bash
+ls -la
+```
+
+Is command mein do options combine kiye gaye hain:
+
+```text
+-l  → Long or detailed listing
+-a  → All files, including hidden files
+```
+
+`ls -la` output mein generally ye information hoti hai:
+
+- File type
+- File permissions
+- Link count
+- File owner
+- File group
+- File size
+- Modification date and time
+- File name
+
+Example output format:
+
+```text
+-rw-r----- 1 bandit2 bandit1 33 Oct 5 06:19 -
+```
+
+Last column mein file ka naam hai:
+
+```text
+-
+```
+
+## `ls -la` Output Ko Samajhna
+
+Example:
+
+```text
+-rw-r----- 1 bandit2 bandit1 33 Oct 5 06:19 -
+```
+
+Is line ko parts mein samjhein:
+
+| Part | Meaning |
+|---|---|
+| `-rw-r-----` | File permissions |
+| `1` | Hard link count |
+| `bandit2` | File owner |
+| `bandit1` | File group |
+| `33` | File size in bytes |
+| `Oct 5 06:19` | Last modification date and time |
+| `-` | Filename |
+
+Starting character `-` ka ek meaning file type ke context mein regular file bhi ho sakta hai. Lekin is challenge mein last column mein jo `-` hai, woh actual filename hai.
+
+Example mein do hyphen dikh sakte hain:
+
+```text
+-rw-r----- ... -
+```
+
+Pehla hyphen permissions ka part hai. Last hyphen filename hai.
+
+# Hyphen Filename Problem
+
+## Filename Sirf `-` Hai
+
+Is level ki file ka naam hai:
+
+```text
+-
+```
+
+Ye filename unusual hai kyunki command-line tools mein hyphen ka special use hota hai.
 
 Examples:
+
+```bash
+command -option
+```
+
+Yahan `-option` command ka option ho sakta hai.
+
+## Options Aur Filenames Mein Difference
+
+Linux commands mein hyphen aksar options introduce karta hai.
+
+Example:
 
 ```bash
 ls -l
 ```
 
-Yahan `-l` ek option hai jo detailed list display karta hai.
+Yahan `-l` ek option hai jo detailed listing show karta hai.
+
+Agar file ka naam bhi `-` ho, to command confuse ho sakti hai ki:
+
+```text
+- ek option hai?
+Ya
+- ek filename hai?
+```
+
+Is ambiguity ko solve karne ke liye file ka path explicitly specify karte hain.
+
+# `cat` Command
+
+## Normal `cat` Usage
+
+`cat` command file ka content terminal par display karti hai.
+
+Normal filename ke liye:
+
+```bash
+cat filename
+```
+
+Example:
+
+```bash
+cat readme
+```
+
+## Problematic Command
+
+Agar hum run karein:
 
 ```bash
 cat -
 ```
 
-Yahan `-` ko `cat` standard input ke roop mein treat kar sakta hai.
+To `cat` hyphen ko filename ke bajay standard input ke roop mein treat kar sakta hai.
 
-Isliye `cat -` type karne par command file named `-` read karne ke bajay keyboard se input ka wait kar sakti hai.
+Standard input ka matlab hota hai terminal ya kisi doosre input source se data read karna. Is wajah se command expected file content nahi dikhayegi aur terminal input ka wait kar sakti hai.
 
-## Standard Input Kya Hota Hai?
-
-Standard input ko short form mein **stdin** kaha jata hai.
-
-By default, standard input keyboard hota hai. Jab koi program standard input se data read karta hai, to woh user ke keyboard input ka wait karta hai.
-
-Linux ke teen standard streams:
-
-| Stream | Short Name | Meaning |
-|---|---|---|
-| Standard input | stdin | Program ko input deta hai |
-| Standard output | stdout | Normal output display karta hai |
-| Standard error | stderr | Error messages display karta hai |
-
-Simple flow:
+Agar aisa ho jaye, to stop karne ke liye press karein:
 
 ```text
-Keyboard Input
-      ↓
-    stdin
-      ↓
-   Program
-      ↓
-   stdout
-      ↓
-Terminal Output
+Ctrl + C
 ```
-
-`cat -` mein dash ka meaning stdin ho sakta hai. Isliye command file read karne ke bajay keyboard input ka wait kar sakti hai.
 
 ## Correct Command: `cat ./-`
 
@@ -217,31 +322,36 @@ Correct command:
 cat ./-
 ```
 
-Is command ko parts mein samjhein:
-
-| Part | Meaning |
-|---|---|
-| `cat` | File content display karta hai |
-| `./` | Current directory ko represent karta hai |
-| `-` | Actual filename |
-
-`./-` ka complete meaning hai:
+Is command mein:
 
 ```text
-Current directory ke andar maujood - naam wali file
+cat  → File content read karne wali command
+./   → Current directory
+-    → Actual filename
 ```
 
-`./` add karne se `cat` ko clear ho jata hai ki `-` ek file path hai, standard input nahi.
+Complete path:
 
-## `./` Ka Meaning
+```text
+./-
+```
+
+Iska meaning hai:
+
+```text
+Current directory ke andar `-` naam wali file
+```
+
+`./` shell ko clear batata hai ki `-` ek filename hai, command option nahi.
+
+## `./` Kya Hota Hai?
 
 Linux mein:
 
 ```text
-.
+.   → Current directory
+..  → Parent directory
 ```
-
-current directory ko represent karta hai.
 
 Isliye:
 
@@ -252,50 +362,24 @@ Isliye:
 ka meaning hai:
 
 ```text
-Current directory / file named -
+Current directory ke andar file named `-`
 ```
 
-Agar current directory `/home/bandit1` hai, to:
+Ye technique un filenames ke liye useful hai jo hyphen se start hote hain ya command options jaise dikhte hain.
 
-```bash
-./-
-```
+## Alternative Correct Methods
 
-actually is file ko refer karta hai:
-
-```text
-/home/bandit1/-
-```
-
-## File Read Karna
-
-Command run karein:
+### Method 1: `./` Path
 
 ```bash
 cat ./-
 ```
 
-Output mein next level ka password display hoga.
+Ye is level ka recommended method hai.
 
-Expected output ka format:
+### Method 2: `--` Option Terminator
 
-```text
-PASSWORD_FOR_BANDIT2
-```
-
-Aapke challenge mein password hai:
-
-```text
-rRGizSaX8Mk1RTb1CNQoXTcYZWU6lgzi
-```
-
-Password ko carefully copy karein. Extra spaces copy na karein.
-
-## Alternative Method 1: `cat -- -`
-
-Kuch Linux commands `--` ko end-of-options marker ke roop mein support karti hain.
-
-Command:
+Kuch commands `--` ko options ke end ke roop mein support karti hain:
 
 ```bash
 cat -- -
@@ -304,95 +388,50 @@ cat -- -
 Iska meaning hai:
 
 ```text
-cat command, options yahan tak khatam ho gaye; ab - ko filename samjho
+Ab iske baad aane wali value ko option nahi, filename samjho.
 ```
 
-Yahan:
+### Method 3: Absolute Path
 
-```text
---
-```
-
-command ko batata hai ki iske baad aane wali value ko option ki tarah interpret na kare.
-
-Is method kaam kar sakta hai:
+Agar current directory `/home/bandit1` hai, to absolute path use kar sakte hain:
 
 ```bash
-cat -- -
+cat /home/bandit1/-
 ```
 
-Lekin beginners ke liye recommended aur easy method hai:
+Sabse easy aur beginner-friendly command:
 
 ```bash
 cat ./-
 ```
 
-## Alternative Method 2: Input Redirection
+# Complete Walkthrough
 
-Aap input redirection ka use bhi kar sakte hain:
+## Step 1: PowerShell Open Karein
 
-```bash
-cat < -
+Windows par PowerShell ya Windows Terminal open karein.
+
+Example prompt:
+
+```powershell
+PS C:\Users\dolla>
 ```
 
-Yahan `<` shell ko batata hai ki input `-` file se lena hai.
+## Step 2: `bandit1` Par Login Karein
 
-Input redirection ka basic format:
-
-```bash
-command < input_file
-```
-
-Example:
-
-```bash
-cat < notes.txt
-```
-
-Is command mein `cat` ko input `notes.txt` file se milta hai.
-
-Bandit ke liye:
-
-```bash
-cat < -
-```
-
-Ye method work kar sakta hai, lekin beginners ke liye `cat ./-` zyada clear hai.
-
-## Recommended Solution
-
-Is level ke liye recommended command:
-
-```bash
-cat ./-
-```
-
-Iska benefit:
-
-- Easy to understand hai.
-- Current directory clearly specify karta hai.
-- `-` ko stdin samajhne ki confusion nahi hoti.
-- File path explicitly diya jata hai.
-
-## Complete Walkthrough
-
-### Step 1: Terminal Open Karein
-
-Linux Terminal, macOS Terminal, Windows PowerShell, Windows Terminal ya WSL open karein.
-
-### Step 2: `bandit1` Par Login Karein
-
-```bash
+```powershell
 ssh bandit1@bandit.labs.overthewire.org -p 2220
 ```
 
-Password enter karein:
+Password prompt par previous level se mila password enter karein.
+
+Successful login ke baad prompt kuch is tarah dikh sakta hai:
 
 ```text
-rRGizSaX8Mk1RTb1CNQoXTcYZWU6lgzi
+bandit1@bandit:~$
 ```
 
-### Step 3: Current User Verify Karein
+## Step 3: Current User Verify Karein
 
 ```bash
 whoami
@@ -404,7 +443,7 @@ Expected output:
 bandit1
 ```
 
-### Step 4: Current Directory Check Karein
+## Step 4: Current Directory Check Karein
 
 ```bash
 pwd
@@ -416,43 +455,106 @@ Expected output:
 /home/bandit1
 ```
 
-### Step 5: Files Ki List Dekhein
+## Step 5: Normal File List Dekhein
 
 ```bash
 ls
 ```
 
-Expected output:
+Agar output blank ya confusing lage, to detailed listing run karein:
+
+```bash
+ls -la
+```
+
+## Step 6: File Identify Karein
+
+Detailed listing mein file ka last column dekhein. Aapko filename milega:
 
 ```text
 -
 ```
 
-### Step 6: Dash Filename Read Karein
+Yahan dhyan rakhein ki output line ka starting hyphen permissions ka part ho sakta hai, lekin last column ka hyphen actual filename hai.
+
+## Step 7: File Read Karein
+
+Wrong command:
+
+```bash
+cat -
+```
+
+Correct command:
 
 ```bash
 cat ./-
 ```
 
-Output mein `bandit2` ka password milega.
+Output:
 
-### Step 7: Current SSH Session Close Karein
+```text
+rRGizSaX8Mk1RTb1CNQoXTcYZWU6lgzi
+```
+
+## Step 8: Password Copy Karein
+
+Found password:
+
+```text
+rRGizSaX8Mk1RTb1CNQoXTcYZWU6lgzi
+```
+
+Password ke start ya end mein extra space copy na karein.
+
+## Step 9: SSH Session Close Karein
 
 ```bash
 exit
 ```
 
-### Step 8: `bandit2` Par Login Karein
+## Step 10: `bandit2` Par Login Karein
 
 ```bash
 ssh bandit2@bandit.labs.overthewire.org -p 2220
 ```
 
-Password ke liye `cat ./-` command se mila hua password enter karein.
+Password enter karein:
+
+```text
+rRGizSaX8Mk1RTb1CNQoXTcYZWU6lgzi
+```
+
+# Actual Terminal Session
+
+Aapka terminal session roughly is tarah dikh sakta hai:
+
+```text
+PS C:\Users\dolla> ssh bandit1@bandit.labs.overthewire.org -p 2220
+bandit1@bandit.labs.overthewire.org's password:
+bandit1@bandit:~$ ls
+bandit1@bandit:~$ ls -la
+total 24
+-rw-r----- 1 bandit2 bandit1   33 Oct  5 06:19 -
+drwxr-xr-x 2 root    root    4096 Oct  5 06:19 .
+drwxr-xr-x 70 root   root    4096 Oct  5 06:20 ..
+-rw-r--r-- 1 root    root     220 Jan  6  2022 .bash_logout
+-rw-r--r-- 1 root    root    3771 Jan  6  2022 .bashrc
+-rw-r--r-- 1 root    root     807 Jan  6  2022 .profile
+bandit1@bandit:~$ cat ./-
+rRGizSaX8Mk1RTb1CNQoXTcYZWU6lgzi
+bandit1@bandit:~$ exit
+```
+
+Uske baad next level par login karein:
+
+```bash
+ssh bandit2@bandit.labs.overthewire.org -p 2220
+```
 
 ## Complete Command Sequence
 
-```bash
+```powershell
 ssh bandit1@bandit.labs.overthewire.org -p 2220
 ```
 
@@ -469,6 +571,10 @@ ls
 ```
 
 ```bash
+ls -la
+```
+
+```bash
 cat ./-
 ```
 
@@ -480,46 +586,22 @@ exit
 ssh bandit2@bandit.labs.overthewire.org -p 2220
 ```
 
-## Credential Flow
+# Common Errors
 
-Level 1 se Level 2 ka flow:
+## `cat -` Input Ka Wait Kar Raha Hai
 
-```text
-Current user:  bandit1
-File name:    -
-Command:      cat ./-
-Result:       bandit2 ka password
-Next user:    bandit2
-```
-
-General SSH format:
-
-```bash
-ssh NEXT_USERNAME@bandit.labs.overthewire.org -p 2220
-```
-
-Level 2 ke liye:
-
-```bash
-ssh bandit2@bandit.labs.overthewire.org -p 2220
-```
-
-## Common Errors
-
-### 1. `cat -` Input Ka Wait Kar Raha Hai
-
-Agar aap run karte hain:
+Agar aap ye command run karte hain:
 
 ```bash
 cat -
 ```
 
-to `cat` standard input ka wait kar sakta hai. Keyboard se type ki hui lines screen par display ho sakti hain.
+To terminal input ka wait kar sakta hai. Iska reason hai ki `cat` hyphen ko standard input ke roop mein interpret kar raha hai.
 
-Is situation se exit karne ke liye:
+Command stop karne ke liye:
 
 ```text
-Ctrl + D
+Ctrl + C
 ```
 
 Phir correct command run karein:
@@ -528,7 +610,7 @@ Phir correct command run karein:
 cat ./-
 ```
 
-### 2. `No such file or directory`
+## `No such file or directory`
 
 Error:
 
@@ -538,128 +620,114 @@ cat: ./-: No such file or directory
 
 Possible reasons:
 
-- Aap wrong directory mein ho.
-- Filename incorrectly type hua hai.
-- Aap `bandit1` ke bajay kisi doosre user se logged in ho.
+- Aap home directory mein nahi ho.
+- Filename galat type hua hai.
+- Aapne hyphen ki jagah koi doosra character type kiya hai.
 
 Check karein:
 
 ```bash
-whoami
 pwd
-ls
+ls -la
 ```
 
-### 3. Wrong Username
+## SSH Permission Denied
 
-Next level ke liye username change hota hai:
+Error:
 
 ```text
-bandit1 → bandit2
+Permission denied, please try again.
 ```
-
-Correct command:
-
-```bash
-ssh bandit2@bandit.labs.overthewire.org -p 2220
-```
-
-### 4. Permission Denied
-
-Agar file read nahi ho rahi, to permissions check karein:
-
-```bash
-ls -l ./-
-```
-
-Current user bhi check karein:
-
-```bash
-whoami
-```
-
-### 5. Password Login Fail Ho Raha Hai
 
 Check karein:
 
-- Password exactly copy hua hai.
-- Extra spaces nahi hain.
-- Uppercase/lowercase correct hai.
-- Username `bandit2` hai.
+- Current username `bandit1` hai.
+- Next level username `bandit2` hai.
 - Port `2220` use kiya gaya hai.
+- Password exactly copy kiya gaya hai.
+- Password ke start ya end mein extra space nahi hai.
 
-Correct SSH command:
+Next level ka correct command:
 
 ```bash
 ssh bandit2@bandit.labs.overthewire.org -p 2220
 ```
 
-## Important Linux Lessons
+## `banditl` Aur `bandit1` Ka Difference
 
-### Dash Filename Aur Command Option Alag Hote Hain
+Correct username:
 
-Linux filesystem ke liye `-` ek valid filename hai. Lekin kai command-line programs `-` ko option ya standard input ke roop mein interpret karte hain.
-
-Isliye filename ko path ke saath specify karna safe hota hai:
-
-```bash
-cat ./-
+```text
+bandit1
 ```
 
-### `./` Ambiguity Remove Karta Hai
+Incorrect-looking version:
 
-Ye command:
-
-```bash
-cat -
+```text
+banditl
 ```
 
-ambiguous hai.
+Correct username mein last character number `1` hai, lowercase letter `l` nahi.
 
-Ye command clear hai:
-
-```bash
-cat ./-
-```
-
-Yahan `./` batata hai ki `-` current directory ke andar ek file hai.
-
-### `--` Options Ko Stop Karta Hai
-
-`--` ka use command ko batane ke liye hota hai ki ab aage aane wali values options nahi, balki filenames ya arguments hain.
+## File Permissions Samajh Nahi Aa Rahi
 
 Example:
 
-```bash
-cat -- -
+```text
+-rw-r----- 1 bandit2 bandit1 33 Oct 5 06:19 -
 ```
 
-### Stdin Aur File Same Cheez Nahi Hain
+Starting `-` regular file ko represent karta hai. Last `-` actual filename hai.
 
-`stdin` program ko input provide karta hai. File disk par stored data hoti hai.
+File permission details ko future Bandit levels mein aur deeply study kiya jayega.
 
-`cat -` mein dash stdin ko represent kar sakta hai, jabki `cat ./-` actual file named `-` ko read karta hai.
+# Security Lessons
 
-## Useful Commands Summary
+Is level se humein ye important lessons milte hain:
+
+- Linux commands mein hyphen options ke liye use ho sakta hai.
+- Filename agar `-` ho, to command ambiguity create kar sakti hai.
+- `./` path filename ko clearly identify karta hai.
+- `--` options ke end ko represent kar sakta hai.
+- `ls -la` hidden files aur detailed metadata dekhne ke liye useful hai.
+- File permissions file access control karti hain.
+- Standard input aur filename ke beech difference samajhna zaroori hai.
+- Unusual filenames ko safely handle karna command-line skill hai.
+- Passwords ko carefully copy karna chahiye.
+- Har completed level ke baad next username ke saath new SSH login karna hota hai.
+
+# Commands Summary
 
 | Command | Purpose |
 |---|---|
 | `ssh user@host -p 2220` | Remote server par SSH login karta hai |
-| `whoami` | Current username dikhata hai |
-| `pwd` | Current directory dikhata hai |
-| `ls` | Files aur directories list karta hai |
+| `whoami` | Current username show karta hai |
+| `pwd` | Current directory show karta hai |
+| `ls` | Normal file listing show karta hai |
+| `ls -la` | Detailed listing aur hidden files show karta hai |
+| `cat -` | Standard input read kar sakta hai; is challenge mein avoid karein |
 | `cat ./-` | `-` naam wali file read karta hai |
-| `cat -- -` | `-` ko filename ke roop mein read karta hai |
-| `cat < -` | `-` file se input redirect karta hai |
-| `ls -l ./-` | Dash file ki permissions dikhata hai |
+| `cat -- -` | `-` ko filename ke roop mein treat karta hai |
 | `exit` | SSH session close karta hai |
 
-## Final Solution
+# Final Solution
 
 `bandit1` par login karein:
 
 ```bash
 ssh bandit1@bandit.labs.overthewire.org -p 2220
+```
+
+Files ki detailed list dekhein:
+
+```bash
+ls -la
+```
+
+Hyphen naam wali file ko read karein:
+
+```bash
+cat ./-
 ```
 
 Password:
@@ -668,52 +736,38 @@ Password:
 rRGizSaX8Mk1RTb1CNQoXTcYZWU6lgzi
 ```
 
-Files list karein:
-
-```bash
-ls
-```
-
-Dash filename ko read karein:
-
-```bash
-cat ./-
-```
-
-File ke output mein mila password use karke Level 2 par login karein:
+Ab `bandit2` par login karein:
 
 ```bash
 ssh bandit2@bandit.labs.overthewire.org -p 2220
 ```
 
-## Conclusion
+# Conclusion
 
-Bandit Level 1 → Level 2 mein humne seekha ki dash (`-`) naam wali file ko kaise read kiya jata hai.
-
-Main lesson ye hai ki:
-
-```bash
-cat -
-```
-
-mein `-` standard input ka meaning rakh sakta hai, isliye humein file ka explicit path use karna chahiye:
-
-```bash
-cat ./-
-```
+Bandit Level 1 → Level 2 mein humne seekha ki hyphen naam wali file ko Linux terminal mein kaise read kiya jata hai.
 
 Complete workflow:
 
 ```text
 SSH Login as bandit1
         ↓
-Current Directory Check
+Home Directory Check
         ↓
-ls Se File Identify
+ls -la
         ↓
-cat ./- Se Password Read
+Hyphen Filename Identify
+        ↓
+cat ./-
+        ↓
+Password Find
         ↓
 SSH Login as bandit2
+```
+
+Is level ka sabse important command hai:
+
+```bash
+cat ./-
 ```
 
 > **Security Note:** SSH ka use sirf un systems par karein jahan aapke paas permission ho. OverTheWire Bandit ek authorized cybersecurity learning environment hai.
