@@ -19,6 +19,10 @@ tags:
 **Username:** `bandit0`  
 **Password:** `bandit0`
 
+##Concept
+SSH, or Secure Shell, is a network protocol used to securely log into, control, and manage remote computers and servers over an untrusted network
+
+
 ## Command Used
 
 ```bash
