@@ -4,7 +4,7 @@ description: "Beginner-friendly walkthrough of OverTheWire Bandit Level 3 to Lev
 platform: "CTF"
 category: "OverTheWire - Bandit"
 difficulty: "Beginner"
-date: "2026-08-08"
+date: "19-06-2026"
 tags:
   - OverTheWire
   - Bandit
