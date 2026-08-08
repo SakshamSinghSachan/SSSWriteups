@@ -489,7 +489,7 @@ function About() {
             <Github size={18} /> GitHub
           </a>
           <a
-            href="https://linkedin.com/"
+            href="https://www.linkedin.com/in/saksham-singh-sachan/"
             target="_blank"
             rel="noopener noreferrer"
             className="social-btn"
