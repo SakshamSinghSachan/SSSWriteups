@@ -1,6 +1,6 @@
 ---
-title: "OverTheWire Bandit - Level 0"
-description: "Complete beginner-friendly walkthrough of OverTheWire Bandit Level 0, including SSH, Linux shell, networking, DNS, IP addresses, TCP, ports, authentication, encryption, and remote access."
+title: "OverTheWire Bandit - Level 0 to Level 1"
+description: "Complete beginner-friendly walkthrough of OverTheWire Bandit Level 0 to Level 1, including SSH login, Linux terminal, home directory, ls, cat, readme, passwords, authentication, and next-level login."
 platform: "CTF"
 category: "OverTheWire - Bandit"
 difficulty: "Beginner"
@@ -10,33 +10,39 @@ tags:
   - Bandit
   - Linux
   - SSH
-  - Networking
-  - DNS
-  - TCP
-  - Ports
+  - Terminal
+  - ls
+  - cat
+  - Files
+  - Passwords
   - Authentication
-  - Encryption
+  - CTF
 ---
 
-# OverTheWire Bandit — Level 0
+# OverTheWire Bandit — Level 0 to Level 1
 
 ## Introduction
 
-[OverTheWire Bandit](https://overthewire.org/wargames/bandit/) ek Linux-based Capture The Flag (CTF) wargame hai. Iska purpose beginners ko practical Linux, networking aur cybersecurity concepts sikhana hai.
+Bandit Level 0 se Level 1 challenge mein humein SSH ke through `bandit0` user ke account par login karna hai. Login karne ke baad home directory mein present `readme` file ko read karna hai.
 
-Bandit ko multiple levels mein divide kiya gaya hai. Har level par ek naya Linux command, security concept, vulnerability ya technique sikhne ko milti hai.
+`readme` file ke andar next level, yani `bandit1`, ka password stored hai. Password milne ke baad us password ka use karke `bandit1` user ke through new SSH session start karna hota hai.
 
-Level 0 Bandit ka starting level hai.
-
-Is level ka objective hai SSH ka use karke OverTheWire ke remote server par login karna.
-
----
+Official challenge ka objective bhi yehi hai: `readme` file se password read karke `bandit1` mein login karna. [web:28]
 
 ## Objective
 
-Level 0 mein humein SSH ke through Bandit server par login karna hai.
+Is level mein humein:
 
-Challenge ke connection details ye hain:
+1. `bandit0` user se SSH ke through login karna hai.
+2. Home directory ki files dekhni hain.
+3. `readme` file identify karni hai.
+4. `cat` command se file read karni hai.
+5. File ke andar stored password copy karna hai.
+6. `bandit1` username aur found password se next level par login karna hai.
+
+## Given Credentials
+
+Level 0 par login karne ke liye:
 
 ```text
 Host:     bandit.labs.overthewire.org
@@ -45,634 +51,271 @@ Username: bandit0
 Password: bandit0
 ```
 
----
+> **Important:** Username `bandit0` mein last character zero `0` hai, letter `o` nahi. Kabhi-kabhi terminal font ki wajah se `bandit0` aur `bandito` similar dikh sakte hain.
 
-## Level 0 Mein Use Hone Wale Concepts
+Next level ke liye:
 
-Is level ko samajhne ke liye humein in concepts ko samajhna hoga:
+```text
+Next Username: bandit1
+Password:      readme file se mila hua password
+```
 
-- Remote server
-- Client and server
+## Important Concepts
+
+Is level mein hum ye concepts seekhenge:
+
 - SSH
+- Remote server
 - Hostname
-- DNS
-- IP address
 - Port
-- TCP
-- Username and password
+- Username
+- Password
 - Authentication
-- Authorization
-- Encryption
 - Terminal
 - Shell
+- Linux home directory
+- Current working directory
+- Files and directories
+- `ls` command
+- `cat` command
+- Password discovery
+- Next-level login
+- SSH session exit
 
----
+# SSH Basics
 
-## 1. Server Kya Hota Hai?
+## SSH Kya Hota Hai?
 
-Server ek computer hota hai jo doosre computers ko koi service provide karta hai.
+SSH ka full form **Secure Shell** hai. SSH ka use kisi remote computer ya server par securely login karne ke liye hota hai.
 
-Example ke liye, jab hum koi website open karte hain, tab:
+SSH ke through hum:
 
-- Hamara browser client hota hai.
-- Website ka computer server hota hai.
-- Client server ko request bhejta hai.
-- Server client ko response bhejta hai.
-
-Bandit mein OverTheWire ne ek remote Linux server provide kiya hai. Humein us server par connect karke challenges solve karne hote hain.
-
-Simple diagram:
-
-```text
-Your Computer  ───────────>  Bandit Server
-    Client                    Remote Server
-```
-
-Hamari computer client hai kyunki connection hum initiate kar rahe hain.
-
-Bandit machine server hai kyunki woh connection accept kar rahi hai aur humein Linux shell provide kar rahi hai.
-
----
-
-## 2. Remote Connection Kya Hota Hai?
-
-Remote connection ka matlab hai kisi doosre computer ko network ke through access karna.
-
-Aap physically India mein baithe ho sakte ho, lekin Bandit server kisi doosri location par hosted ho sakta hai. Network ki madad se aap us remote machine par commands run kar sakte ho.
-
-SSH ke through login karne ke baad terminal mein type ki gayi commands aapke local computer par nahi, balki Bandit ke remote server par execute hoti hain.
-
-Example:
-
-```bash
-pwd
-```
-
-Ye command login ke baad remote Bandit machine ki current directory display karegi.
-
----
-
-## 3. SSH Kya Hota Hai?
-
-SSH ka full form **Secure Shell** hai.
-
-SSH ek network protocol hai jiska use kisi remote computer par securely login karne aur commands execute karne ke liye hota hai.
-
-SSH ka use commonly in logon ke dwara kiya jata hai:
-
-- System administrators
-- Cloud engineers
-- Developers
-- Cybersecurity professionals
-- Penetration testers
-- DevOps engineers
-
-SSH ki madad se hum:
-
-- Remote computer par login kar sakte hain.
+- Remote server par login kar sakte hain.
 - Remote commands execute kar sakte hain.
-- Files transfer kar sakte hain.
-- Servers manage kar sakte hain.
-- Secure network tunnels create kar sakte hain.
+- Files access kar sakte hain.
+- Server ko terminal se manage kar sakte hain.
 
-SSH command ka basic format:
-
-```bash
-ssh username@hostname
-```
-
-Bandit ke liye command:
+SSH command ka general format:
 
 ```bash
-ssh bandit0@bandit.labs.overthewire.org -p 2220
+ssh username@hostname -p port
 ```
 
----
-
-## 4. SSH Command Ko Samajhna
-
-Command:
+Bandit Level 0 ke liye command:
 
 ```bash
 ssh bandit0@bandit.labs.overthewire.org -p 2220
 ```
 
-Ab is command ke har part ko samajhte hain.
+## SSH Command Ko Samajhna
 
-### `ssh`
+```bash
+ssh bandit0@bandit.labs.overthewire.org -p 2220
+```
+
+| Part | Meaning |
+|---|---|
+| `ssh` | SSH client start karta hai |
+| `bandit0` | Remote server ka username |
+| `@` | Username aur hostname ko separate karta hai |
+| `bandit.labs.overthewire.org` | Bandit server ka hostname |
+| `-p` | Custom port specify karta hai |
+| `2220` | Bandit SSH service ka port |
+
+Normally SSH port `22` par run karta hai, lekin OverTheWire Bandit port `2220` use karta hai. Isliye command mein `-p 2220` likhna zaroori hai.
+
+## Hostname Aur Port
+
+`bandit.labs.overthewire.org` server ka hostname hai. Hostname human-readable naam hota hai jise computer DNS ke through IP address mein convert karta hai.
+
+`2220` port number hai. Port ek specific network service tak pahunchne ka endpoint hota hai.
+
+Complete destination:
 
 ```text
-ssh
+bandit.labs.overthewire.org:2220
 ```
 
-Ye batata hai ki hum SSH client ka use karke connection establish karna chahte hain.
+## Username Aur Password
 
-SSH client hamare computer par installed ek program hota hai jo SSH server se connect karta hai.
-
-### `bandit0`
+Username batata hai ki hum kis account se login karna chahte hain:
 
 ```text
 bandit0
 ```
 
-Ye remote server par login karne wala username hai.
-
-Ek server par multiple users ke accounts ho sakte hain. Username batata hai ki hum kis account se login karna chahte hain.
-
-### `@`
+Password prove karta hai ki humein is account ko access karne ki permission hai:
 
 ```text
-@
+bandit0
 ```
 
-`@` symbol username aur hostname ko separate karta hai.
+Username aur password milkar authentication process ka part bante hain.
 
-General format:
+## Authentication Kya Hota Hai?
 
-```text
-username@hostname
-```
+Authentication ka matlab hota hai identity verify karna.
 
-Example:
-
-```text
-alice@example.com
-```
-
-Iska matlab:
-
-```text
-Username: alice
-Host:     example.com
-```
-
-### `bandit.labs.overthewire.org`
-
-```text
-bandit.labs.overthewire.org
-```
-
-Ye Bandit server ka hostname hai.
-
-Hostname kisi computer ya network service ka human-readable naam hota hai.
-
-### `-p`
-
-```text
--p
-```
-
-`-p` option SSH ko batata hai ki connection ke liye ek specific port ka use karna hai.
-
-### `2220`
-
-```text
-2220
-```
-
-Ye woh port number hai jahan Bandit ka SSH service run kar raha hai.
-
-Normally SSH ka default port `22` hota hai, lekin Bandit port `2220` use karta hai.
-
-Isliye command mein `-p 2220` likhna zaroori hai.
-
----
-
-## 5. Hostname Kya Hota Hai?
-
-Hostname kisi computer ya service ka readable naam hota hai.
-
-Hum usually numerical IP address yaad rakhne ke bajay hostname use karte hain.
-
-Example:
-
-```text
-bandit.labs.overthewire.org
-```
-
-Is hostname ko parts mein samjha ja sakta hai:
-
-```text
-bandit       → Specific server ya subdomain
-labs         → Project ya organization ka section
-overthewire  → Main domain
-org          → Top-level domain
-```
-
-Hostname hamare computer ko batata hai ki kis server se connect karna hai.
-
----
-
-## 6. DNS Kya Hota Hai?
-
-DNS ka full form **Domain Name System** hai.
-
-DNS hostname ko IP address mein convert karta hai.
-
-Example:
-
-```text
-bandit.labs.overthewire.org
-```
-
-DNS lookup ke baad ye hostname ek IP address mein convert ho sakta hai:
-
-```text
-176.9.9.172
-```
-
-Computer network par server ko locate karne ke liye IP address ka use karta hai.
-
-Process:
-
-```text
-Hostname
-    ↓
-DNS Lookup
-    ↓
-IP Address
-    ↓
-Network Connection
-```
-
-Humein normally manually IP address find karne ki zaroorat nahi hoti. Jab hum SSH command run karte hain, operating system automatically DNS lookup karta hai.
-
-DNS ko manually test karne ke liye:
-
-```bash
-nslookup bandit.labs.overthewire.org
-```
-
-Ya:
-
-```bash
-dig bandit.labs.overthewire.org
-```
-
-Aap `ping` command bhi use kar sakte ho:
-
-```bash
-ping bandit.labs.overthewire.org
-```
-
-Note: Kuch servers ping requests ko block kar dete hain. Aise case mein ping fail ho sakta hai, chahe server available ho.
-
----
-
-## 7. IP Address Kya Hota Hai?
-
-IP address ek numerical address hota hai jo network par kisi device ya service ko identify karta hai.
-
-IPv4 address ka example:
-
-```text
-192.168.1.10
-```
-
-Public server ka example:
-
-```text
-176.9.9.172
-```
-
-IP address ko postal address ki tarah samajh sakte hain. Ye network traffic ko correct computer tak pahunchne mein help karta hai.
-
-Lekin sirf IP address se connection complete nahi hota. Humein port number bhi chahiye hota hai.
-
-Complete destination:
-
-```text
-IP Address + Port
-```
-
-Example:
-
-```text
-176.9.9.172:2220
-```
-
-Iska matlab:
-
-```text
-IP Address: 176.9.9.172
-Port:       2220
-```
-
----
-
-## 8. Port Kya Hota Hai?
-
-Port ek numbered communication endpoint hota hai.
-
-Ek server ek hi time par multiple services provide kar sakta hai. Ports ki madad se operating system incoming traffic ko correct service tak pahunchata hai.
-
-Common ports:
-
-| Service | Common Port |
-|---|---:|
-| HTTP | 80 |
-| HTTPS | 443 |
-| SSH | 22 |
-| DNS | 53 |
-| Bandit SSH Service | 2220 |
-
-Ports ko ek building ke doors ki tarah samajh sakte hain:
-
-```text
-IP Address = Building ka address
-Port       = Building ka specific door
-Service    = Door ke peeche available service
-```
-
-Bandit ka destination:
-
-```text
-bandit.labs.overthewire.org:2220
-```
-
-Normally SSH port `22` par run karta hai, lekin Bandit port `2220` ka use karta hai.
-
-Agar hum ye command run karein:
-
-```bash
-ssh bandit0@bandit.labs.overthewire.org
-```
-
-To SSH by default port `22` par connect karne ki try karega. Connection fail ho sakta hai kyunki Bandit SSH service port `2220` par run kar rahi hai.
-
-Correct command:
-
-```bash
-ssh -p 2220 bandit0@bandit.labs.overthewire.org
-```
-
----
-
-## 9. TCP Kya Hota Hai?
-
-TCP ka full form **Transmission Control Protocol** hai.
-
-TCP ek transport-layer protocol hai jo do devices ke beech reliable connection establish karta hai.
-
-SSH ko reliable connection ki zaroorat hoti hai kyunki:
-
-- Commands correct order mein deliver honi chahiye.
-- Password data lose nahi hona chahiye.
-- Server responses accurately receive hone chahiye.
-- Missing data ko dobara bhejna zaroori hota hai.
-
-TCP ke important features:
-
-- Connection establish karna
-- Data ko correct order mein deliver karna
-- Lost data detect karna
-- Missing data ko retransmit karna
-- Data delivery verify karna
-
-Simplified TCP connection:
-
-```text
-Client  ─── Connection Request ───>  Server
-Client  <── Connection Accepted ─── Server
-Client  <──── Reliable Data ──────> Server
-```
-
-Bandit se connect karte waqt aapka computer is destination par TCP connection create karta hai:
-
-```text
-bandit.labs.overthewire.org:2220
-```
-
-SSH isi TCP connection ke upar secure remote shell provide karta hai.
-
----
-
-## 10. Authentication Kya Hota Hai?
-
-Authentication ka matlab hota hai apni identity prove karna.
-
-Jab hum username aur password enter karte hain, server verify karta hai ki credentials correct hain ya nahi.
-
-Bandit Level 0 ke credentials:
+Server check karta hai:
 
 ```text
 Username: bandit0
 Password: bandit0
 ```
 
-Username ka question hota hai:
+Agar details correct hoti hain, to server login allow kar deta hai.
+
+Authentication aur authorization different concepts hain:
+
+- **Authentication:** Aap kaun ho?
+- **Authorization:** Aap login ke baad kya kar sakte ho?
+
+# Linux Terminal Basics
+
+## Terminal Kya Hota Hai?
+
+Terminal ek program hai jisme hum commands type karke computer ke saath interact karte hain.
+
+Aap in tools ka use kar sakte ho:
+
+- Linux Terminal
+- macOS Terminal
+- Windows PowerShell
+- Windows Terminal
+- WSL Terminal
+- Kali Linux Terminal
+
+## Shell Kya Hota Hai?
+
+Shell ek command interpreter hota hai. Ye aapki typed commands ko read karke execute karta hai.
+
+Simple difference:
 
 ```text
-Aap kis account ko access karna chahte ho?
+Terminal = Jahan commands type ki jaati hain
+Shell    = Jo commands ko interpret karke execute karta hai
 ```
 
-Password ka question hota hai:
+SSH ke baad humein Bandit server par remote Linux shell milti hai.
+
+## Prompt Ko Samajhna
+
+Login ke baad prompt kuch is tarah dikh sakta hai:
 
 ```text
-Kya aap prove kar sakte ho ki aapko is account ka access milna chahiye?
+bandit0@bandit:~$
 ```
 
-Authentication ke common methods:
-
-- Password authentication
-- SSH key authentication
-- Multi-factor authentication
-- Certificate-based authentication
-
-Bandit Level 0 mein password authentication ka use hota hai.
-
----
-
-## 11. Authentication Aur Authorization Mein Difference
-
-Authentication aur authorization alag concepts hain.
-
-### Authentication
-
-Authentication verify karta hai ki aap kaun ho.
-
-Example:
+Prompt ke parts:
 
 ```text
-Kya aap bandit0 user ho?
+bandit0  → Current username
+@        → Username aur machine name separator
+bandit   → Remote machine ka hostname
+:~       → Current user ki home directory
+$        → Normal user shell prompt
 ```
 
-### Authorization
+## `bandit0` Aur `bandito` Mein Difference
 
-Authorization decide karta hai ki login ke baad aap kya kar sakte ho.
-
-Example:
+Correct username hai:
 
 ```text
-Kya bandit0 user is file ko read kar sakta hai?
-Kya bandit0 user is command ko execute kar sakta hai?
+bandit0
 ```
 
-Simple example:
+Yahan last character number zero `0` hai.
+
+Ye incorrect username hai:
 
 ```text
-Authentication = Aapki identity verify karna
-Authorization  = Aapki permissions check karna
+bandito
 ```
 
-Bandit server par successfully login karna authentication hai. Login ke baad available files aur commands authorization rules ke according decide hote hain.
+Yahan last character lowercase letter `o` hai.
 
----
-
-## 12. Encryption Kya Hota Hai?
-
-Encryption readable information ko unreadable format mein convert karta hai.
-
-Iska purpose ye hota hai ki agar koi network traffic ko monitor bhi kare, to woh actual data ko samajh na sake.
-
-SSH connection ko encrypt karta hai.
-
-Without encryption, attacker potentially ye information dekh sakta hai:
-
-```text
-Username: bandit0
-Password: bandit0
-Typed Commands
-Server Responses
-```
-
-SSH encryption ke saath ye data protected form mein network par travel karta hai.
-
-Simplified encryption process:
-
-```text
-Readable Data
-     ↓
-Encryption
-     ↓
-Unreadable Network Data
-     ↓
-Decryption by Destination
-     ↓
-Readable Data
-```
-
-SSH ke through:
-
-- Commands encrypted hoti hain.
-- Password encrypted hota hai.
-- Server responses encrypted hote hain.
-- Connection data protected hota hai.
-
-Important point:
-
-SSH connection ko protect karta hai, lekin weak password ko strong nahi bana deta. Encryption data ko transmit hote waqt protect karta hai. Hamesha strong aur unique passwords ka use karna chahiye.
-
----
-
-## 13. SSH Host Key Verification
-
-Jab aap pehli baar kisi SSH server se connect karte ho, to SSH ek warning dikha sakta hai:
-
-```text
-The authenticity of host 'bandit.labs.overthewire.org' can't be established.
-Are you sure you want to continue connecting
-(yes/no/[fingerprint])?
-```
-
-Ye isliye hota hai kyunki aapke computer ne is server ko pehle contact nahi kiya hai.
-
-Aapko type karna hota hai:
-
-```text
-yes
-```
-
-SSH server ki identity ke liye ek host key save karta hai. Ye key local file mein store hoti hai:
-
-```text
-~/.ssh/known_hosts
-```
-
-Future connections par SSH saved host key ko new host key se compare karta hai.
-
-Agar keys match karti hain, to connection normal continue hota hai.
-
-Agar key change ho jaye, to SSH warning dikha sakta hai. Iska reason ho sakta hai:
-
-- Server reinstall hua ho.
-- Server administrator ne host key change ki ho.
-- DNS kisi doosre server par point kar raha ho.
-- Man-in-the-middle attack attempt ho raha ho.
-
-Real-world systems par host key warning ko ignore nahi karna chahiye.
-
----
-
-## 14. Terminal Kya Hota Hai?
-
-Terminal ek program hota hai jiske through hum commands type karke computer ke saath interact karte hain.
-
-### Linux
-
-Linux par application menu se ye open karein:
-
-```text
-Terminal
-```
-
-### macOS
-
-macOS par open karein:
-
-```text
-Terminal
-```
-
-### Windows
-
-Windows par aap use kar sakte hain:
-
-```text
-PowerShell
-```
-
-Ya:
-
-```text
-Windows Terminal
-```
-
-Modern Windows versions mein OpenSSH client generally available hota hai.
-
-SSH installed hai ya nahi check karne ke liye:
+Correct SSH command:
 
 ```bash
-ssh -V
+ssh bandit0@bandit.labs.overthewire.org -p 2220
 ```
 
-Agar SSH installed hai, to version information display hogi.
+Agar aap `bandito` type karoge, to SSH wrong user ke account mein login karne ki try karega aur authentication fail ho sakti hai.
 
----
+# Linux File System Basics
 
-## 15. Shell Kya Hota Hai?
+## File Kya Hoti Hai?
 
-Shell ek command interpreter hota hai.
+File ek container hoti hai jisme information store hoti hai.
 
-Ye aapki typed commands ko read karta hai, execute karta hai aur output display karta hai.
-
-Common shells:
-
-- Bash
-- Zsh
-- Fish
-- PowerShell
-
-Terminal aur shell mein difference:
+Examples:
 
 ```text
-Terminal = Jahan aap commands type karte ho
-Shell    = Jo commands ko samajhkar execute karta hai
+readme
+password.txt
+notes.md
+config.conf
 ```
 
-SSH se Bandit server par login karne ke baad aapko remote Linux shell milti hai.
+Is level mein password `readme` naam ki file ke andar stored hai.
 
-Is shell ko test karne ke liye:
+## Directory Kya Hoti Hai?
+
+Directory ko commonly folder bhi kaha jata hai. Directory ke andar files aur doosri directories store hoti hain.
+
+Example:
+
+```text
+/home
+└── bandit0
+    └── readme
+```
+
+Yahan:
+
+- `/home` ek directory hai.
+- `/home/bandit0` user ki home directory hai.
+- `readme` ek file hai.
+
+## Home Directory Kya Hoti Hai?
+
+Har Linux user ki ek personal home directory hoti hai.
+
+`bandit0` user ki home directory generally hoti hai:
+
+```text
+/home/bandit0
+```
+
+SSH login ke baad user normally apni home directory se start karta hai. Prompt mein `~` current user ki home directory ko represent karta hai.
+
+Example:
+
+```text
+bandit0@bandit:~$
+```
+
+## Current Working Directory
+
+Current working directory woh directory hoti hai jahan aap is waqt kaam kar rahe ho.
+
+Current directory check karne ke liye:
+
+```bash
+pwd
+```
+
+Expected output:
+
+```text
+/home/bandit0
+```
+
+# Linux Commands
+
+## `whoami` Command
+
+`whoami` command current logged-in username display karti hai.
 
 ```bash
 whoami
@@ -684,39 +327,117 @@ Expected output:
 bandit0
 ```
 
-`whoami` command currently logged-in user ka username display karti hai.
+Agar output `bandit0` hai, to aap correct user ke account mein login ho.
 
----
+## `pwd` Command
 
-## Solution
+`pwd` ka full form **Print Working Directory** hai.
 
-### Step 1: Terminal Open Karein
+```bash
+pwd
+```
+
+Expected output:
+
+```text
+/home/bandit0
+```
+
+Ye confirm karta hai ki aap `bandit0` ki home directory mein ho.
+
+## `ls` Command
+
+`ls` command current directory ke andar available files aur directories ki list display karti hai.
+
+```bash
+ls
+```
+
+Expected output:
+
+```text
+readme
+```
+
+Is output ka matlab hai ki current directory mein `readme` naam ki file available hai.
+
+### Detailed List
+
+```bash
+ls -l
+```
+
+Ye file permissions, owner, group, size aur modification time ki information show karta hai.
+
+### Hidden Files
+
+```bash
+ls -a
+```
+
+Ye hidden files bhi display karta hai.
+
+Level 0 se Level 1 ke liye simple command enough hai:
+
+```bash
+ls
+```
+
+## `cat` Command
+
+`cat` command file ka content terminal par display karti hai.
+
+Basic format:
+
+```bash
+cat filename
+```
+
+`readme` file read karne ke liye:
+
+```bash
+cat readme
+```
+
+Is command ke baad file ke andar stored password terminal par print hoga.
+
+`cat` command ka naam **concatenate** se aaya hai. Single file ka content display karne ke liye bhi iska commonly use hota hai. [web:16]
+
+## `exit` Command
+
+`exit` command current shell ya SSH session close karti hai.
+
+```bash
+exit
+```
+
+Iske baad remote server se logout ho jayega aur aap local terminal par wapas aa jaoge.
+
+Alternative:
+
+```text
+Ctrl + D
+```
+
+# Complete Walkthrough
+
+## Step 1: Terminal Open Karein
 
 Apne operating system ka terminal open karein.
 
-### Step 2: SSH Command Run Karein
+## Step 2: `bandit0` Par Login Karein
 
 ```bash
 ssh bandit0@bandit.labs.overthewire.org -p 2220
 ```
 
-Is command ka doosra valid format:
+Password enter karein:
 
-```bash
-ssh -p 2220 bandit0@bandit.labs.overthewire.org
+```text
+bandit0
 ```
 
-Aap `-l` option ka use bhi kar sakte hain:
-
-```bash
-ssh -l bandit0 -p 2220 bandit.labs.overthewire.org
-```
-
-Teeno commands same server aur same user account se connect karti hain.
-
-### Step 3: Host Identity Confirm Karein
-
-Pehli baar connection par SSH ye question pooch sakta hai:
+Pehli baar connection par SSH host verification ke liye pooch sakta hai:
 
 ```text
 Are you sure you want to continue connecting (yes/no/[fingerprint])?
@@ -728,146 +449,184 @@ Type karein:
 yes
 ```
 
-### Step 4: Password Enter Karein
+Password type karte waqt screen par characters ya asterisks display nahi honge. Ye normal behavior hai.
 
-Password prompt aane par enter karein:
-
-```text
-bandit0
-```
-
-Password type karte waqt screen par kuch bhi visible nahi hoga. Na letters dikhenge aur na hi asterisks.
-
-Ye Linux terminal ka normal security behavior hai.
-
-Password type karke `Enter` press karein.
-
----
-
-## Expected Result
-
-Successful login ke baad aapko ek welcome banner aur shell prompt dikh sakta hai.
-
-Banner ka exact design future mein change ho sakta hai.
-
-Login verify karne ke liye run karein:
+## Step 3: Current User Check Karein
 
 ```bash
 whoami
 ```
 
-Expected output:
+Output:
 
 ```text
 bandit0
 ```
 
-Current directory dekhne ke liye:
+## Step 4: Current Directory Check Karein
 
 ```bash
 pwd
 ```
 
-`pwd` ka full form **Print Working Directory** hai.
+Output:
 
-Ye command aapki current directory ka path display karti hai.
-
-Current machine ka hostname dekhne ke liye:
-
-```bash
-hostname
+```text
+/home/bandit0
 ```
 
----
+## Step 5: Files Ki List Dekhein
 
-## Server Se Exit Kaise Karein?
+```bash
+ls
+```
 
-Remote Bandit shell se bahar nikalne ke liye:
+Output:
+
+```text
+readme
+```
+
+## Step 6: `readme` File Read Karein
+
+```bash
+cat readme
+```
+
+Output:
+
+```text
+NH2SXQwcBdpmTEzi3bvBHMM9H66vVXjL
+```
+
+Yahi `bandit1` user ka password hai.
+
+## Step 7: Password Save Ya Copy Karein
+
+Found password:
+
+```text
+NH2SXQwcBdpmTEzi3bvBHMM9H66vVXjL
+```
+
+Password copy karte waqt dhyan rakhein:
+
+- Start mein extra space na ho.
+- End mein extra space na ho.
+- Uppercase aur lowercase characters same rahen.
+- Similar characters carefully check karein.
+
+## Step 8: Current SSH Session Se Exit Karein
 
 ```bash
 exit
 ```
 
-Ya keyboard shortcut use karein:
+Expected message kuch is tarah ho sakta hai:
 
 ```text
-Ctrl + D
+logout
+Connection to bandit.labs.overthewire.org closed.
 ```
 
-Isse remote connection close ho jayega aur aap apne local terminal par wapas aa jaoge.
+## Step 9: `bandit1` Par Login Karein
 
----
-
-## Common Errors
-
-### 1. Connection Timed Out
-
-Error:
+Ab username change hoga:
 
 ```text
-ssh: connect to host ... port 2220: Connection timed out
+bandit0 → bandit1
 ```
 
-Possible reasons:
+Command:
 
-- Internet connection problem
-- Firewall ne connection block kiya hai
-- Bandit server temporarily unavailable hai
-- Hostname ya port galat hai
+```bash
+ssh bandit1@bandit.labs.overthewire.org -p 2220
+```
 
-Command dobara check karein:
+Password:
+
+```text
+NH2SXQwcBdpmTEzi3bvBHMM9H66vVXjL
+```
+
+## Actual Terminal Session
+
+Aapka terminal session roughly is tarah dikh sakta hai:
+
+```text
+bandit0@bandit:~$ ls
+readme
+bandit0@bandit:~$ cat readme
+NH2SXQwcBdpmTEzi3bvBHMM9H66vVXjL
+bandit0@bandit:~$ exit
+logout
+```
+
+Uske baad next level par login karein:
+
+```bash
+ssh bandit1@bandit.labs.overthewire.org -p 2220
+```
+
+## Complete Command Sequence
 
 ```bash
 ssh bandit0@bandit.labs.overthewire.org -p 2220
 ```
 
----
+```bash
+whoami
+```
 
-### 2. Could Not Resolve Hostname
+```bash
+pwd
+```
 
-Error:
+```bash
+ls
+```
+
+```bash
+cat readme
+```
+
+```bash
+exit
+```
+
+```bash
+ssh bandit1@bandit.labs.overthewire.org -p 2220
+```
+
+# Credential Flow
+
+Bandit mein har level ka password next level mein login karne ke liye use hota hai.
+
+Level 0 se Level 1 ka flow:
 
 ```text
-Could not resolve hostname
+Current User:  bandit0
+Current File:  readme
+Command:       cat readme
+Found Password: NH2SXQwcBdpmTEzi3bvBHMM9H66vVXjL
+Next User:     bandit1
 ```
 
-Iska matlab ho sakta hai ki DNS hostname ko IP address mein convert nahi kar pa raha.
-
-Internet connection check karein:
+General SSH format:
 
 ```bash
-ping google.com
+ssh NEXT_USERNAME@bandit.labs.overthewire.org -p 2220
 ```
 
-Bandit hostname ka DNS lookup karein:
+Is level ke liye:
 
 ```bash
-nslookup bandit.labs.overthewire.org
+ssh bandit1@bandit.labs.overthewire.org -p 2220
 ```
 
----
+# Common Errors
 
-### 3. Connection Refused
-
-Error:
-
-```text
-Connection refused
-```
-
-Iska matlab ho sakta hai ki server reachable hai, lekin specified port par koi service connection accept nahi kar rahi.
-
-Port check karein:
-
-```bash
-ssh -p 2220 bandit0@bandit.labs.overthewire.org
-```
-
-Dhyan rakhein ki Bandit port `2220` use karta hai, port `22` nahi.
-
----
-
-### 4. Permission Denied
+## `Permission denied`
 
 Error:
 
@@ -875,150 +634,190 @@ Error:
 Permission denied, please try again.
 ```
 
-Username aur password check karein:
+Possible reasons:
 
-```text
-Username: bandit0
-Password: bandit0
-```
+- Username galat hai.
+- `bandit0` mein zero ke badle letter `o` type kiya gaya hai.
+- Password galat hai.
+- Password copy karte waqt extra space aa gaya hai.
+- Port `2220` specify nahi kiya gaya.
 
-Linux passwords case-sensitive hote hain.
-
-Isliye ye dono different passwords hain:
-
-```text
-bandit0
-Bandit0
-```
-
-Bandit Level 0 ke liye correct password:
-
-```text
-bandit0
-```
-
----
-
-### 5. Password Screen Par Show Nahi Ho Raha
-
-Jab Linux terminal mein password type kiya jata hai, to normally kuch bhi display nahi hota.
-
-Na characters dikhte hain aur na hi asterisks.
-
-Password normally type karein:
-
-```text
-bandit0
-```
-
-Phir `Enter` press karein.
-
----
-
-### 6. SSH Command Not Found
-
-Error:
-
-```text
-ssh: command not found
-```
-
-Iska matlab SSH client installed nahi hai ya system PATH mein available nahi hai.
-
-SSH version check karein:
-
-```bash
-ssh -V
-```
-
-Linux par OpenSSH install karne ke liye Debian/Ubuntu-based systems par:
-
-```bash
-sudo apt update
-sudo apt install openssh-client
-```
-
-Windows par PowerShell ya Windows Terminal mein SSH try karein:
-
-```powershell
-ssh -V
-```
-
----
-
-## Useful Commands
-
-| Command | Purpose |
-|---|---|
-| `ssh user@host` | Remote host se SSH connection establish karta hai |
-| `ssh -p 2220 user@host` | Specific port ke through SSH connection karta hai |
-| `whoami` | Current username display karta hai |
-| `pwd` | Current directory display karta hai |
-| `hostname` | Current machine ka hostname display karta hai |
-| `exit` | Remote shell close karta hai |
-| `nslookup host` | DNS lookup perform karta hai |
-| `dig host` | Detailed DNS information display karta hai |
-| `ping host` | Basic network reachability test karta hai |
-| `ssh -V` | SSH client ka version display karta hai |
-
----
-
-## Level 0 Se Milne Wale Security Lessons
-
-Level 0 beginner-friendly hai, lekin ismein real-world cybersecurity ke important concepts introduce hote hain:
-
-- Servers remote network connections accept kar sakte hain.
-- Hostnames DNS ke through IP addresses mein convert hote hain.
-- IP address network par machine ko identify karta hai.
-- Ports specific network services ko identify karte hain.
-- TCP reliable communication provide karta hai.
-- SSH encrypted remote access provide karta hai.
-- Username account ko identify karta hai.
-- Password authentication ke liye use hota hai.
-- Authentication identity verify karta hai.
-- Authorization permissions decide karta hai.
-- Terminal ke through remote commands execute ki ja sakti hain.
-- Host keys SSH server ki identity verify karne mein help karti hain.
-- Linux passwords case-sensitive hote hain.
-- Default port ke alawa custom port par bhi services run kar sakti hain.
-
-Ye concepts aage chal kar in fields mein useful honge:
-
-- Cloud computing
-- Linux system administration
-- Ethical hacking
-- Penetration testing
-- Network security
-- Digital forensics
-- Incident response
-- DevOps
-- Capture The Flag competitions
-
----
-
-## Final Command
+Correct command:
 
 ```bash
 ssh bandit0@bandit.labs.overthewire.org -p 2220
 ```
 
-Password:
+## `No such file or directory`
+
+Error:
+
+```text
+cat: readme: No such file or directory
+```
+
+Possible reasons:
+
+- Aap wrong directory mein ho.
+- File name galat type hua hai.
+- Uppercase/lowercase mistake hai.
+
+Check karein:
+
+```bash
+pwd
+ls
+```
+
+Correct command:
+
+```bash
+cat readme
+```
+
+## Password Show Nahi Ho Raha
+
+Linux terminal password type karte waqt kuch display nahi karta. Na characters dikhte hain aur na hi asterisks.
+
+Password normally type karein aur `Enter` press karein.
+
+## Wrong Username: `bandito`
+
+Agar aap ye command type karte hain:
+
+```bash
+ssh bandito@bandit.labs.overthewire.org -p 2220
+```
+
+To username wrong hoga, kyunki `bandito` mein last character letter `o` hai.
+
+Correct username:
 
 ```text
 bandit0
 ```
 
-Successful login ke baad aapne **OverTheWire Bandit Level 0** complete kar liya hai.
+Correct command:
 
-Ab aap Level 1 ke liye ready hain.
+```bash
+ssh bandit0@bandit.labs.overthewire.org -p 2220
+```
 
----
+## Wrong Port
 
-## Important Security Note
+Agar aap `-p 2220` nahi likhte, to SSH default port `22` use karega.
 
-SSH ka use sirf unhi systems par karein jahan aapke paas permission ho.
+Incorrect:
 
-OverTheWire Bandit ek intentionally designed learning environment hai jo cybersecurity education ke liye banaya gaya hai. Kisi unauthorized server ya system par login karne ki koshish karna illegal ho sakta hai.
-````
+```bash
+ssh bandit0@bandit.labs.overthewire.org
+```
 
-Official Level 0 ke host, port, username aur password details OverTheWire ke page par di gayi hain. [overthewire](https://overthewire.org/wargames/bandit/bandit0.html)
+Correct:
+
+```bash
+ssh bandit0@bandit.labs.overthewire.org -p 2220
+```
+
+# Security Lessons
+
+Is level se humein ye important lessons milte hain:
+
+- Remote systems ko SSH ke through access kiya ja sakta hai.
+- Hostname aur port dono connection ke liye important hote hain.
+- Username mein ek character ki mistake login fail kar sakti hai.
+- Linux terminal commands exact syntax follow karti hain.
+- `ls` files discover karne ke liye use hota hai.
+- `cat` file contents read karne ke liye use hota hai.
+- Sensitive passwords files ke andar stored ho sakte hain.
+- Passwords ko carefully copy aur handle karna chahiye.
+- Authentication identity verify karta hai.
+- Har level ke liye alag username aur password ho sakta hai.
+- Linux file names aur commands case-sensitive hote hain.
+
+# Commands Summary
+
+| Command | Purpose |
+|---|---|
+| `ssh user@host -p 2220` | Remote server par SSH login karta hai |
+| `whoami` | Current username show karta hai |
+| `pwd` | Current working directory show karta hai |
+| `ls` | Current directory ki files list karta hai |
+| `ls -l` | Files ki detailed information show karta hai |
+| `ls -a` | Hidden files bhi show karta hai |
+| `cat readme` | `readme` file ka content display karta hai |
+| `exit` | SSH session close karta hai |
+
+# Final Solution
+
+Bandit Level 0 par login karein:
+
+```bash
+ssh bandit0@bandit.labs.overthewire.org -p 2220
+```
+
+Current directory ki files dekhein:
+
+```bash
+ls
+```
+
+Expected output:
+
+```text
+readme
+```
+
+Password read karein:
+
+```bash
+cat readme
+```
+
+Password:
+
+```text
+NH2SXQwcBdpmTEzi3bvBHMM9H66vVXjL
+```
+
+Ab Level 1 par login karein:
+
+```bash
+ssh bandit1@bandit.labs.overthewire.org -p 2220
+```
+
+Password enter karein:
+
+```text
+NH2SXQwcBdpmTEzi3bvBHMM9H66vVXjL
+```
+
+# Conclusion
+
+Bandit Level 0 se Level 1 mein humne SSH ke through remote Linux server par login karna, current directory check karna, files list karna aur `cat` command se file ka password read karna seekha.
+
+Complete workflow:
+
+```text
+SSH Login as bandit0
+        ↓
+Home Directory Open
+        ↓
+ls Command
+        ↓
+readme File Identify
+        ↓
+cat readme
+        ↓
+Password Find
+        ↓
+SSH Login as bandit1
+```
+
+Is level ka sabse important command hai:
+
+```bash
+cat readme
+```
+
+> **Security Note:** SSH ka use sirf un systems par karein jahan aapke paas permission ho. OverTheWire Bandit ek authorized cybersecurity learning environment hai.
