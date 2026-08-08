@@ -87,6 +87,7 @@ export function loadAllWriteups() {
     const category = metadata.category || platform;
     const difficulty = metadata.difficulty || "Medium";
     const date = metadata.date || "2026-08-05";
+    const order = Number(metadata.order ?? 999);
 
     let tags = [];
     if (Array.isArray(metadata.tags)) {
