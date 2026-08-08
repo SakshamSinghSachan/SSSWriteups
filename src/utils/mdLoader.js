@@ -1,0 +1,130 @@
+export function parseFrontMatter(rawContent) {
+  if (!rawContent || typeof rawContent !== "string") {
+    return { metadata: {}, content: "" };
+  }
+
+  const normalized = rawContent.replace(/\r\n/g, "\n");
+  const match = normalized.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
+
+  if (!match) {
+    return { metadata: {}, content: normalized };
+  }
+
+  const yamlBlock = match[1];
+  const body = match[2];
+  const metadata = {};
+
+  let currentArrayKey = null;
+
+  yamlBlock.split("\n").forEach((line) => {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) return;
+
+    if (trimmed.startsWith("- ") && currentArrayKey) {
+      const item = trimmed.slice(2).trim().replace(/^['"]|['"]$/g, "");
+      if (!Array.isArray(metadata[currentArrayKey])) {
+        metadata[currentArrayKey] = [];
+      }
+      if (item) metadata[currentArrayKey].push(item);
+    } else {
+      const colonIndex = trimmed.indexOf(":");
+      if (colonIndex !== -1) {
+        const key = trimmed.slice(0, colonIndex).trim();
+        let value = trimmed.slice(colonIndex + 1).trim().replace(/^['"]|['"]$/g, "");
+        currentArrayKey = key;
+        if (value) {
+          metadata[key] = value;
+        }
+      }
+    }
+  });
+
+  return { metadata, content: body };
+}
+
+function formatPlatformName(folderName) {
+  const map = {
+    portswigger: "PortSwigger",
+    tryhackme: "TryHackMe",
+    ctf: "CTF",
+    "bug-bounty": "Bug Bounty",
+    pentesting: "Pentesting",
+    research: "Research",
+  };
+  return map[folderName.toLowerCase()] || folderName.charAt(0).toUpperCase() + folderName.slice(1);
+}
+
+export function loadAllWriteups() {
+  const modules = import.meta.glob("/content/**/*.md", {
+    query: "?raw",
+    eager: true,
+  });
+
+  const writeups = [];
+
+  for (const path in modules) {
+    // Ignore .gitkeep or non-markdown
+    if (!path.endsWith(".md")) continue;
+
+    const raw = typeof modules[path] === "string" ? modules[path] : modules[path]?.default || "";
+    if (!raw.trim()) continue;
+
+    const { metadata, content } = parseFrontMatter(raw);
+
+    // Extract path components e.g. /content/portswigger/lab-1.md
+    const relativePath = path.replace(/^\/content\//, "");
+    const parts = relativePath.split("/");
+    const folder = parts.length > 1 ? parts[0] : "general";
+    const filename = parts[parts.length - 1].replace(/\.md$/, "");
+
+    // Unique ID
+    const fullSlug = relativePath.replace(/\.md$/, "").replace(/[\/\\]/g, "-");
+    const simpleSlug = filename;
+
+    const defaultPlatform = formatPlatformName(folder);
+    const platform = metadata.platform || defaultPlatform;
+    const title = metadata.title || filename.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+    const category = metadata.category || platform;
+    const difficulty = metadata.difficulty || "Medium";
+    const date = metadata.date || "2026-08-05";
+
+    let tags = [];
+    if (Array.isArray(metadata.tags)) {
+      tags = metadata.tags;
+    } else if (typeof metadata.tags === "string") {
+      tags = metadata.tags.split(",").map((t) => t.trim()).filter(Boolean);
+    }
+    if (tags.length === 0) {
+      tags = [platform, category].filter(Boolean);
+    }
+
+    const wordCount = content.trim().split(/\s+/).filter(Boolean).length;
+    const readTime = Math.max(1, Math.ceil(wordCount / 200)) + " min";
+
+    let description = metadata.description || "";
+    if (!description) {
+      const cleanBody = content.replace(/#+\s+.*?\n/g, "").trim();
+      const firstParagraph = cleanBody.split(/\n\n+/)[0] || "";
+      description = firstParagraph.replace(/[*_`#]/g, "").slice(0, 150);
+      if (firstParagraph.length > 150) description += "...";
+    }
+
+    writeups.push({
+      id: fullSlug,
+      simpleId: simpleSlug,
+      title,
+      platform,
+      category,
+      difficulty,
+      date,
+      time: readTime,
+      tags,
+      description,
+      content,
+      path: relativePath,
+    });
+  }
+
+  // Sort by date descending
+  return writeups.sort((a, b) => new Date(b.date) - new Date(a.date));
+}
